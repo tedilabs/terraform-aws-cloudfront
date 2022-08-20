@@ -236,7 +236,7 @@ output "ordered_behaviors" {
       origin_request_policy   = behavior.origin_request_policy_id
       response_headers_policy = behavior.response_headers_policy_id
 
-      function_associations = var.ordered_behaviors[idx].function_associations
+      function_associations = try(var.ordered_behaviors[idx].function_associations, {})
 
       cache_ttl = (var.ordered_behaviors[idx].cache_policy == null
         ? {
@@ -270,7 +270,7 @@ output "monitoring" {
     `realtime_metrics_enabled` - Whether to enable additional real-time metrics for the distribution.
   EOF
   value = {
-    realtime_metrics_enabled = aws_cloudfront_monitoring_subscription.this.monitoring_subscription[0].realtime_metrics_subscription_config[0].realtime_metrics_subscription_status == "Enabled"
+    realtime_metrics_enabled = var.monitoring_realtime_metrics_enabled
   }
 }
 

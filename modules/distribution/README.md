@@ -3,8 +3,8 @@
 This module creates following resources.
 
 - `aws_cloudfront_distribution`
-- `aws_cloudfront_monitoring_subscription`
 - `aws_cloudfront_origin_access_identity`
+- `aws_cloudfront_monitoring_subscription` (optional)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
