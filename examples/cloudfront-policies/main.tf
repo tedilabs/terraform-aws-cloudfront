@@ -52,3 +52,42 @@ module "origin_request_policy" {
     behavior = "ALL"
   }
 }
+
+module "response_headers_policy" {
+  source = "../../modules/response-headers-policy"
+  # source  = "tedilabs/cloudfront/aws//modules/response-headers-policy"
+  # version = "~> 0.2.0"
+
+  name        = "example-response-headers-policy"
+  description = "Managed by Terraform."
+
+  cors = {
+    enabled  = true
+    override = true
+
+    access_control_allow_credentials = false
+    access_control_allow_headers     = ["*"]
+    access_control_allow_methods     = ["ALL"]
+    access_control_allow_origins     = ["*"]
+    access_control_expose_headers    = []
+    access_control_max_age           = 600
+  }
+
+  custom_headers = [
+    {
+      name     = "X-Foo"
+      value    = "Bar"
+      override = false
+    },
+    {
+      name     = "X-Bar"
+      value    = "Baz"
+      override = true
+    },
+  ]
+
+  server_timing_header = {
+    enabled       = true
+    sampling_rate = 50.0
+  }
+}
