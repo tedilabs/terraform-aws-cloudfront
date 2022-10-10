@@ -32,3 +32,23 @@ module "cache_policy" {
     behavior = "ALL"
   }
 }
+
+module "origin_request_policy" {
+  source = "../../modules/origin-request-policy"
+  # source  = "tedilabs/cloudfront/aws//modules/origin-request-policy"
+  # version = "~> 0.2.0"
+
+  name        = "example-origin-request-policy"
+  description = "Managed by Terraform."
+
+  forwarding_cookies = {
+    behavior = "NONE"
+  }
+  forwarding_headers = {
+    behavior = "ALL_VIEWER_AND_CLOUDFRONT_WHITELIST"
+    items    = ["CloudFront-Viewer-Country-Name"]
+  }
+  forwarding_query_strings = {
+    behavior = "ALL"
+  }
+}

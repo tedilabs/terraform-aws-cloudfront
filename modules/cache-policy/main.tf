@@ -8,7 +8,7 @@ locals {
 }
 
 locals {
-  cache_behaviors = {
+  behaviors = {
     "NONE"      = "none"
     "WHITELIST" = "whitelist"
     "BLACKLIST" = "allExcept"
@@ -34,7 +34,7 @@ resource "aws_cloudfront_cache_policy" "this" {
     enable_accept_encoding_gzip   = contains(var.supported_compression_formats, "GZIP")
 
     cookies_config {
-      cookie_behavior = local.cache_behaviors[var.cache_keys_in_cookies.behavior]
+      cookie_behavior = local.behaviors[var.cache_keys_in_cookies.behavior]
 
       dynamic "cookies" {
         for_each = contains(["WHITELIST", "BLACKLIST"], var.cache_keys_in_cookies.behavior) ? [var.cache_keys_in_cookies] : []
@@ -45,7 +45,7 @@ resource "aws_cloudfront_cache_policy" "this" {
       }
     }
     headers_config {
-      header_behavior = local.cache_behaviors[var.cache_keys_in_headers.behavior]
+      header_behavior = local.behaviors[var.cache_keys_in_headers.behavior]
 
       dynamic "headers" {
         for_each = contains(["WHITELIST"], var.cache_keys_in_headers.behavior) ? [var.cache_keys_in_headers] : []
@@ -56,7 +56,7 @@ resource "aws_cloudfront_cache_policy" "this" {
       }
     }
     query_strings_config {
-      query_string_behavior = local.cache_behaviors[var.cache_keys_in_query_strings.behavior]
+      query_string_behavior = local.behaviors[var.cache_keys_in_query_strings.behavior]
 
       dynamic "query_strings" {
         for_each = contains(["WHITELIST", "BLACKLIST"], var.cache_keys_in_query_strings.behavior) ? [var.cache_keys_in_query_strings] : []

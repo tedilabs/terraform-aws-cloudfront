@@ -16,6 +16,7 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
   - Real-time Log Configuration (Comming soon!)
   - Policies
     - Cache Policy
+    - Origin Request Policy
 
 
 ## Self Promotion
