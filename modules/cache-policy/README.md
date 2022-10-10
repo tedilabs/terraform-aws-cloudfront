@@ -48,7 +48,7 @@ No modules.
 |------|-------------|
 | <a name="output_cache_keys_in_cookies"></a> [cache\_keys\_in\_cookies](#output\_cache\_keys\_in\_cookies) | A configuraiton for specifying which cookies to use as cache key in viewer requests. |
 | <a name="output_cache_keys_in_headers"></a> [cache\_keys\_in\_headers](#output\_cache\_keys\_in\_headers) | A configuraiton for specifying which headers to use as cache key in viewer requests. |
-| <a name="output_cache_keys_in_query_strings"></a> [cache\_keys\_in\_query\_strings](#output\_cache\_keys\_in\_query\_strings) | A configuraiton for specifying which query\_strings to use as cache key in viewer requests. |
+| <a name="output_cache_keys_in_query_strings"></a> [cache\_keys\_in\_query\_strings](#output\_cache\_keys\_in\_query\_strings) | A configuraiton for specifying which query strings to use as cache key in viewer requests. |
 | <a name="output_default_ttl"></a> [default\_ttl](#output\_default\_ttl) | The default time to live in seconds. |
 | <a name="output_description"></a> [description](#output\_description) | The description of the cache policy. |
 | <a name="output_etag"></a> [etag](#output\_etag) | The current version of the cache policy. |
