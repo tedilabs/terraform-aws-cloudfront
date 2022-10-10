@@ -14,6 +14,8 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
 - **AWS CloudFront**
   - Distribution
   - Real-time Log Configuration (Comming soon!)
+  - Policies
+    - Cache Policy
 
 
 ## Self Promotion

@@ -43,3 +43,6 @@
 - color: "fbca04"
   description: "This issue or pull request is related to distribution module."
   name: ":floppy_disk: distribution"
+- color: "fbca04"
+  description: "This issue or pull request is related to cache-policy module."
+  name: ":floppy_disk: cache-policy"
