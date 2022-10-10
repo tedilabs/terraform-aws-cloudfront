@@ -39,7 +39,7 @@ output "supported_compression_formats" {
 }
 
 output "cache_keys_in_cookies" {
-  description = "A configuraiton for specifying which cookies to use as cache key in viewer requests."
+  description = "A configuration for specifying which cookies to use as cache key in viewer requests."
   value = {
     behavior = {
       for k, v in local.behaviors :
@@ -50,7 +50,7 @@ output "cache_keys_in_cookies" {
 }
 
 output "cache_keys_in_headers" {
-  description = "A configuraiton for specifying which headers to use as cache key in viewer requests."
+  description = "A configuration for specifying which headers to use as cache key in viewer requests."
   value = {
     behavior = {
       for k, v in local.behaviors :
@@ -61,7 +61,7 @@ output "cache_keys_in_headers" {
 }
 
 output "cache_keys_in_query_strings" {
-  description = "A configuraiton for specifying which query strings to use as cache key in viewer requests."
+  description = "A configuration for specifying which query strings to use as cache key in viewer requests."
   value = {
     behavior = {
       for k, v in local.behaviors :

@@ -12,7 +12,7 @@ variable "description" {
 
 variable "forwarding_cookies" {
   description = <<EOF
-  (Optional) A configuraiton for specifying which cookies in viewer requests to be forwarded in the origin requests. `forwarding_cookies` as defined below.
+  (Optional) A configuration for specifying which cookies in viewer requests to be forwarded in the origin requests. `forwarding_cookies` as defined below.
     (Required) `behavior` - Determine whether any cookies in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`. Defaults to `NONE`.
     (Optional) `items` - A list of cookie names. It only takes effect when `behavior` is `WHITELIST`.
   EOF
@@ -31,7 +31,7 @@ variable "forwarding_cookies" {
 
 variable "forwarding_headers" {
   description = <<EOF
-  (Optional) A configuraiton for specifying which headers in viewer requests to be forwarded in the origin requests. `forwarding_headers` as defined below.
+  (Optional) A configuration for specifying which headers in viewer requests to be forwarded in the origin requests. `forwarding_headers` as defined below.
     (Required) `behavior` - Determine whether any headers in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL_VIEWER` and `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`. Defaults to `NONE`.
     (Optional) `items` - A list of header names. It only takes effect when `behavior` is `WHITELIST` or `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`.
   EOF
@@ -50,7 +50,7 @@ variable "forwarding_headers" {
 
 variable "forwarding_query_strings" {
   description = <<EOF
-  (Optional) A configuraiton for specifying which query strings in viewer requests to be forwarded in the origin requests. `forwarding_query_strings` as defined below.
+  (Optional) A configuration for specifying which query strings in viewer requests to be forwarded in the origin requests. `forwarding_query_strings` as defined below.
     (Required) `behavior` - Determine whether any query strings in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`. Defaults to `NONE`.
     (Optional) `items` - A list of query string names. It only takes effect when `behavior` is `WHITELIST`.
   EOF

@@ -57,8 +57,76 @@ resource "aws_cloudfront_response_headers_policy" "this" {
     }
   }
 
-  # security_headers_config {
-  # }
+  dynamic "security_headers_config" {
+    for_each = anytrue([
+      var.content_security_policy_header.enabled,
+      var.content_type_options_header.enabled,
+      var.frame_options_header.enabled,
+      var.referrer_policy_header.enabled,
+      var.strict_transport_security_header.enabled,
+      var.xss_protection_header.enabled,
+    ]) ? ["go"] : []
+
+    content {
+      dynamic "content_security_policy" {
+        for_each = var.content_security_policy_header.enabled ? [var.content_security_policy_header] : []
+        iterator = header
+
+        content {
+          override                = header.value.override
+          content_security_policy = header.value.value
+        }
+      }
+      dynamic "content_type_options" {
+        for_each = var.content_type_options_header.enabled ? [var.content_type_options_header] : []
+        iterator = header
+
+        content {
+          override = header.value.override
+        }
+      }
+      dynamic "frame_options" {
+        for_each = var.frame_options_header.enabled ? [var.frame_options_header] : []
+        iterator = header
+
+        content {
+          override     = header.value.override
+          frame_option = header.value.value
+        }
+      }
+      dynamic "referrer_policy" {
+        for_each = var.referrer_policy_header.enabled ? [var.referrer_policy_header] : []
+        iterator = header
+
+        content {
+          override        = header.value.override
+          referrer_policy = header.value.value
+        }
+      }
+      dynamic "strict_transport_security" {
+        for_each = var.strict_transport_security_header.enabled ? [var.strict_transport_security_header] : []
+        iterator = header
+
+        content {
+          override                   = header.value.override
+          access_control_max_age_sec = header.value.max_age
+          include_subdomains         = header.value.include_subdomains
+          preload                    = header.value.preload
+        }
+      }
+      dynamic "xss_protection" {
+        for_each = var.xss_protection_header.enabled ? [var.xss_protection_header] : []
+        iterator = header
+
+        content {
+          override   = header.value.override
+          protection = header.value.filtering_enabled
+          mode_block = header.value.block
+          report_uri = header.value.report
+        }
+      }
+    }
+  }
 
   server_timing_headers_config {
     enabled       = var.server_timing_header.enabled

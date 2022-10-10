@@ -90,4 +90,45 @@ module "response_headers_policy" {
     enabled       = true
     sampling_rate = 50.0
   }
+
+  ## Security Headers
+  content_security_policy_header = {
+    enabled  = true
+    override = true
+    value    = "default-src https:"
+  }
+  content_type_options_header = {
+    enabled  = true
+    override = true
+  }
+  frame_options_header = {
+    enabled  = true
+    override = true
+    value    = "SAMEORIGIN"
+  }
+  referrer_policy_header = {
+    enabled  = true
+    override = true
+    value    = "strict-origin-when-cross-origin"
+  }
+  strict_transport_security_header = {
+    enabled  = true
+    override = true
+
+    filtering_enabled = true
+    block             = true
+    report            = ""
+
+    max_age            = 60 * 60 * 24 * 365
+    include_subdomains = true
+    preload            = false
+  }
+  xss_protection_header = {
+    enabled  = true
+    override = true
+
+    filtering_enabled = true
+    block             = true
+    report            = ""
+  }
 }
