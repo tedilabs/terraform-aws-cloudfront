@@ -49,3 +49,6 @@
 - color: "fbca04"
   description: "This issue or pull request is related to origin-request-policy module."
   name: ":floppy_disk: origin-request-policy"
+- color: "fbca04"
+  description: "This issue or pull request is related to response-headers-policy module."
+  name: ":floppy_disk: response-headers-policy"

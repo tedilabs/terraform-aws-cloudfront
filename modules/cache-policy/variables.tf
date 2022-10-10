@@ -49,8 +49,8 @@ variable "supported_compression_formats" {
 variable "cache_keys_in_cookies" {
   description = <<EOF
   (Optional) A configuraiton for specifying which cookies to use as cache key in viewer requests. The values in the cache key are automatically forwarded in requests to the origin. `cache_keys_in_cookies` as defined below.
-    (Required) `behavior` - Determine whether any cookies in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL`.
-    (Optional) `items` - A list of cookie names.
+    (Required) `behavior` - Determine whether any cookies in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL`. Defaults to `NONE`.
+    (Optional) `items` - A list of cookie names. It only takes effect when `behavior` is `WHITELIST` or `BLACKLIST`.
   EOF
   type = object({
     behavior = optional(string, "NONE")
@@ -68,8 +68,8 @@ variable "cache_keys_in_cookies" {
 variable "cache_keys_in_headers" {
   description = <<EOF
   (Optional) A configuraiton for specifying which headers to use as cache key in viewer requests. The values in the cache key are automatically forwarded in requests to the origin. `cache_keys_in_headers` as defined below.
-    (Required) `behavior` - Determine whether any headers in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`.
-    (Optional) `items` - A list of header names.
+    (Required) `behavior` - Determine whether any headers in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`. Defaults to `NONE`.
+    (Optional) `items` - A list of header names. It only takes effect when `behavior` is `WHITELIST`.
   EOF
   type = object({
     behavior = optional(string, "NONE")
@@ -87,8 +87,8 @@ variable "cache_keys_in_headers" {
 variable "cache_keys_in_query_strings" {
   description = <<EOF
   (Optional) A configuraiton for specifying which query strings to use as cache key in viewer requests. The values in the cache key are automatically forwarded in requests to the origin. `cache_keys_in_query_strings` as defined below.
-    (Required) `behavior` - Determine whether any query strings in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL`.
-    (Optional) `items` - A list of query string names.
+    (Required) `behavior` - Determine whether any query strings in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL`. Defaults to `NONE`.
+    (Optional) `items` - A list of query string names. It only takes effect when `behavior` is `WHITELIST` or `BLACKLIST`.
   EOF
   type = object({
     behavior = optional(string, "NONE")

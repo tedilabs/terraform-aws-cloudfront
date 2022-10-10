@@ -17,6 +17,7 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
   - Policies
     - Cache Policy
     - Origin Request Policy
+    - Resposne Headers Policy
 
 
 ## Self Promotion
