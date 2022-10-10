@@ -19,7 +19,7 @@ output "description" {
 }
 
 output "forwarding_cookies" {
-  description = "A configuraiton for specifying which cookies to be forwarded in the origin requests."
+  description = "A configuration for specifying which cookies to be forwarded in the origin requests."
   value = {
     behavior = {
       for k, v in local.behaviors :
@@ -30,7 +30,7 @@ output "forwarding_cookies" {
 }
 
 output "forwarding_headers" {
-  description = "A configuraiton for specifying which headers to be forwarded in the origin requests."
+  description = "A configuration for specifying which headers to be forwarded in the origin requests."
   value = {
     behavior = {
       for k, v in local.behaviors :
@@ -41,7 +41,7 @@ output "forwarding_headers" {
 }
 
 output "forwarding_query_strings" {
-  description = "A configuraiton for specifying which query strings to be forwarded in the origin requests."
+  description = "A configuration for specifying which query strings to be forwarded in the origin requests."
   value = {
     behavior = {
       for k, v in local.behaviors :

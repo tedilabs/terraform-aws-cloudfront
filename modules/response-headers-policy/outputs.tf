@@ -19,20 +19,28 @@ output "description" {
 }
 
 output "cors" {
-  description = "A configuraiton for a set of HTTP response headers for CORS(Cross-Origin Resource Sharing)."
+  description = "A configuration for a set of HTTP response headers for CORS(Cross-Origin Resource Sharing)."
   value       = var.cors
 }
 
 output "custom_headers" {
-  description = "A configuraiton for custom headers in the response headers."
+  description = "A configuration for custom headers in the response headers."
   value       = aws_cloudfront_response_headers_policy.this.custom_headers_config[0].items
 }
 
-output "server_timing_header" {
-  description = "A configuraiton for `Server-Timing` header in HTTP responses sent from CloudFront."
-  value       = aws_cloudfront_response_headers_policy.this.server_timing_headers_config[0]
+output "security_headers" {
+  description = "A configuration for several security-related HTTP response headers."
+  value = {
+    content_security_policy   = var.content_security_policy_header
+    content_type_options      = var.content_type_options_header
+    frame_options             = var.frame_options_header
+    referrer_policy           = var.referrer_policy_header
+    strict_transport_security = var.strict_transport_security_header
+    xss_protection            = var.xss_protection_header
+  }
 }
 
-output "zzz" {
-  value = aws_cloudfront_response_headers_policy.this.security_headers_config
+output "server_timing_header" {
+  description = "A configuration for `Server-Timing` header in HTTP responses sent from CloudFront."
+  value       = aws_cloudfront_response_headers_policy.this.server_timing_headers_config[0]
 }
