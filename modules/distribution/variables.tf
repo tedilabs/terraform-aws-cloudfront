@@ -1,5 +1,5 @@
 variable "name" {
-  description = "(Required) The name of the CloudWatch log group."
+  description = "(Required) The name of the CloudFront distribution."
   type        = string
 }
 
@@ -37,14 +37,14 @@ variable "price_class" {
 }
 
 variable "http_version" {
-  description = "(Optional) The maximum HTTP version to support on the distribution. Valid values are `HTTP1`, or `HTTP2`. Defaults to `HTTP2`."
+  description = "(Optional) The maximum HTTP version to support on the distribution. Valid values are `HTTP1.1`, `HTTP2`, `HTTP2AND3`, or `HTTP3`. Defaults to `HTTP2`."
   type        = string
   default     = "HTTP2"
   nullable    = false
 
   validation {
-    condition     = contains(["HTTP1", "HTTP2"], var.http_version)
-    error_message = "Valid values are `HTTP1`, or `HTTP2`."
+    condition     = contains(["HTTP1.1", "HTTP2", "HTTP2AND3", "HTTP3"], var.http_version)
+    error_message = "Valid values are `HTTP1.1`, `HTTP2`, `HTTP2AND3`, or `HTTP3`."
   }
 }
 
