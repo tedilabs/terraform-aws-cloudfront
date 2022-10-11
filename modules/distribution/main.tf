@@ -21,8 +21,10 @@ locals {
     "100" = "PriceClass_100"
   }
   http_version = {
-    "HTTP1" = "http1"
-    "HTTP2" = "http2"
+    "HTTP1.1"   = "http1.1"
+    "HTTP2"     = "http2"
+    "HTTP2AND3" = "http2and3"
+    "HTTP3"     = "http3"
   }
   ssl_support_method = {
     "VIP"       = "vip"

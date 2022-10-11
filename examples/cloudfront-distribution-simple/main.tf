@@ -10,7 +10,7 @@ provider "aws" {
 module "distribution" {
   source = "../../modules/distribution"
   # source  = "tedilabs/cloudfront/aws//modules/distribution"
-  # version = "~> 0.1.0"
+  # version = "~> 0.2.0"
 
   name        = "example"
   description = "Managed by Terraform."
