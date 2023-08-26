@@ -215,7 +215,7 @@ variable "custom_origins" {
       (Required) `region` - The AWS Region for Origin Shield. To specify a region. For example, specify the US East (Ohio) region as `us-east-2`.
     (Optional) `connection_attempts` - The number of times that CloudFront attempts to connect to the origin, from `1` to `3`. Defaults to `3`.
     (Optional) `connection_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `10`. Defaults to `10`.
-    (Optional) `keepalive_timeout` - The number of seconds that CloudFront maintains an idle connection with the origin, from `1` to `60`. Defaults to `5`.
+    (Optional) `keepalive_timeout` - The number of seconds that CloudFront maintains an idle connection with the origin, from `1` to `60`. But, the maximum can be changed arbitrarily by AWS Support to a much higher value. Defaults to `5`.
     (Optional) `response_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `60`. Defaults to `30`.
   EOF
   type        = any
