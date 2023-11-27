@@ -3,6 +3,8 @@
 - modules/distribution/**/*
 ":floppy_disk: cache-policy":
 - modules/cache-policy/**/*
+":floppy_disk: origin-access-control":
+- modules/origin-access-control/**/*
 ":floppy_disk: origin-request-policy":
 - modules/origin-request-policy/**/*
 ":floppy_disk: response-headers-policy":

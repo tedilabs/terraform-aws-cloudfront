@@ -8,6 +8,7 @@ Terraform module which creates CloudFront related resources on AWS.
 
 - [cache-policy](./modules/cache-policy)
 - [distribution](./modules/distribution)
+- [origin-access-control](./modules/origin-access-control)
 - [origin-request-policy](./modules/origin-request-policy)
 - [response-headers-policy](./modules/response-headers-policy)
 
@@ -19,6 +20,8 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
 - **AWS CloudFront**
   - Distribution
   - Real-time Log Configuration (Comming soon!)
+  - Origin Access
+    - Origin Access Control
   - Policies
     - Cache Policy
     - Origin Request Policy
