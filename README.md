@@ -6,6 +6,11 @@
 
 Terraform module which creates CloudFront related resources on AWS.
 
+- [cache-policy](./modules/cache-policy)
+- [distribution](./modules/distribution)
+- [origin-request-policy](./modules/origin-request-policy)
+- [response-headers-policy](./modules/response-headers-policy)
+
 
 ## Target AWS Services
 
@@ -18,6 +23,14 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
     - Cache Policy
     - Origin Request Policy
     - Resposne Headers Policy
+
+
+## Examples
+
+### CloudFront
+
+- [cloudfront-distribution-simple](./examples/cloudfront-distribution-simple/)
+- [cloudfront-policies](./examples/cloudfront-policies/)
 
 
 ## Self Promotion
