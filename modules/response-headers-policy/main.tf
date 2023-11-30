@@ -45,14 +45,28 @@ resource "aws_cloudfront_response_headers_policy" "this" {
     }
   }
 
-  custom_headers_config {
+  dynamic "custom_headers_config" {
+    for_each = length(var.custom_headers) > 0 ? ["go"] : []
+
+    content {
+      dynamic "items" {
+        for_each = var.custom_headers
+
+        content {
+          header   = items.value.name
+          value    = items.value.value
+          override = items.value.override
+        }
+      }
+    }
+  }
+
+  remove_headers_config {
     dynamic "items" {
-      for_each = var.custom_headers
+      for_each = var.remove_headers
 
       content {
-        header   = items.value.name
-        value    = items.value.value
-        override = items.value.override
+        header = items.value
       }
     }
   }
