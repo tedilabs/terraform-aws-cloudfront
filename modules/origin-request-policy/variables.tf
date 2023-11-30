@@ -13,8 +13,8 @@ variable "description" {
 variable "forwarding_cookies" {
   description = <<EOF
   (Optional) A configuration for specifying which cookies in viewer requests to be forwarded in the origin requests. `forwarding_cookies` as defined below.
-    (Required) `behavior` - Determine whether any cookies in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`. Defaults to `NONE`.
-    (Optional) `items` - A list of cookie names. It only takes effect when `behavior` is `WHITELIST`.
+    (Required) `behavior` - Determine whether any cookies in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`, `BLACKLIST`. Defaults to `NONE`.
+    (Optional) `items` - A list of cookie names. It only takes effect when `behavior` are `WHITELIST`, `BLACKLIST`.
   EOF
   type = object({
     behavior = optional(string, "NONE")
@@ -24,16 +24,16 @@ variable "forwarding_cookies" {
   nullable = false
 
   validation {
-    condition     = contains(["NONE", "WHITELIST", "ALL"], var.forwarding_cookies.behavior)
-    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST`, and `ALL`."
+    condition     = contains(["NONE", "WHITELIST", "ALL", "BLACKLIST"], var.forwarding_cookies.behavior)
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST`, `ALL`, and `BLACKLIST`."
   }
 }
 
 variable "forwarding_headers" {
   description = <<EOF
   (Optional) A configuration for specifying which headers in viewer requests to be forwarded in the origin requests. `forwarding_headers` as defined below.
-    (Required) `behavior` - Determine whether any headers in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL_VIEWER` and `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`. Defaults to `NONE`.
-    (Optional) `items` - A list of header names. It only takes effect when `behavior` is `WHITELIST` or `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`.
+    (Required) `behavior` - Determine whether any headers in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL_VIEWER` and `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`. Defaults to `NONE`.
+    (Optional) `items` - A list of header names. It only takes effect when `behavior` are `WHITELIST`, `BLACKLIST` or `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`.
   EOF
   type = object({
     behavior = optional(string, "NONE")
@@ -43,16 +43,16 @@ variable "forwarding_headers" {
   nullable = false
 
   validation {
-    condition     = contains(["NONE", "WHITELIST", "ALL_VIEWER", "ALL_VIEWER_AND_CLOUDFRONT_WHITELIST"], var.forwarding_headers.behavior)
-    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST`, `ALL_VIEWER` and `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`."
+    condition     = contains(["NONE", "WHITELIST", "BLACKLIST", "ALL_VIEWER", "ALL_VIEWER_AND_CLOUDFRONT_WHITELIST"], var.forwarding_headers.behavior)
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL_VIEWER` and `ALL_VIEWER_AND_CLOUDFRONT_WHITELIST`."
   }
 }
 
 variable "forwarding_query_strings" {
   description = <<EOF
   (Optional) A configuration for specifying which query strings in viewer requests to be forwarded in the origin requests. `forwarding_query_strings` as defined below.
-    (Required) `behavior` - Determine whether any query strings in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`. Defaults to `NONE`.
-    (Optional) `items` - A list of query string names. It only takes effect when `behavior` is `WHITELIST`.
+    (Required) `behavior` - Determine whether any query strings in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL`. Defaults to `NONE`.
+    (Optional) `items` - A list of query string names. It only takes effect when `behavior` are `WHITELIST`, `BLACKLIST`.
   EOF
   type = object({
     behavior = optional(string, "NONE")
@@ -62,7 +62,7 @@ variable "forwarding_query_strings" {
   nullable = false
 
   validation {
-    condition     = contains(["NONE", "WHITELIST", "ALL"], var.forwarding_query_strings.behavior)
-    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST`, and `ALL`."
+    condition     = contains(["NONE", "WHITELIST", "BLACKLIST", "ALL"], var.forwarding_query_strings.behavior)
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST`, `BLACKLIST`, and `ALL`."
   }
 }

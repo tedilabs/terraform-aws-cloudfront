@@ -25,7 +25,12 @@ output "cors" {
 
 output "custom_headers" {
   description = "A configuration for custom headers in the response headers."
-  value       = aws_cloudfront_response_headers_policy.this.custom_headers_config[0].items
+  value       = var.custom_headers
+}
+
+output "remove_headers" {
+  description = "A set of HTTP headers to remove from the response headers."
+  value       = toset(aws_cloudfront_response_headers_policy.this.remove_headers_config[0].items[*].header)
 }
 
 output "security_headers" {

@@ -31,7 +31,7 @@ resource "aws_cloudfront_origin_request_policy" "this" {
     cookie_behavior = local.behaviors[var.forwarding_cookies.behavior]
 
     dynamic "cookies" {
-      for_each = contains(["WHITELIST"], var.forwarding_cookies.behavior) ? [var.forwarding_cookies] : []
+      for_each = contains(["WHITELIST", "BLACKLIST"], var.forwarding_cookies.behavior) ? [var.forwarding_cookies] : []
 
       content {
         items = cookies.value.items
@@ -42,7 +42,7 @@ resource "aws_cloudfront_origin_request_policy" "this" {
     header_behavior = local.behaviors[var.forwarding_headers.behavior]
 
     dynamic "headers" {
-      for_each = contains(["WHITELIST", "ALL_VIEWER_AND_CLOUDFRONT_WHITELIST"], var.forwarding_headers.behavior) ? [var.forwarding_headers] : []
+      for_each = contains(["WHITELIST", "BLACKLIST", "ALL_VIEWER_AND_CLOUDFRONT_WHITELIST"], var.forwarding_headers.behavior) ? [var.forwarding_headers] : []
 
       content {
         items = headers.value.items
@@ -53,7 +53,7 @@ resource "aws_cloudfront_origin_request_policy" "this" {
     query_string_behavior = local.behaviors[var.forwarding_query_strings.behavior]
 
     dynamic "query_strings" {
-      for_each = contains(["WHITELIST"], var.forwarding_query_strings.behavior) ? [var.forwarding_query_strings] : []
+      for_each = contains(["WHITELIST", "BLACKLIST"], var.forwarding_query_strings.behavior) ? [var.forwarding_query_strings] : []
 
       content {
         items = query_strings.value.items

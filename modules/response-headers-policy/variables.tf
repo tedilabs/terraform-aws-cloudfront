@@ -73,6 +73,15 @@ variable "custom_headers" {
   nullable = false
 }
 
+variable "remove_headers" {
+  description = <<EOF
+  (Optional) A set of HTTP headers to remove from the HTTP response.
+  EOF
+  type        = set(string)
+  default     = []
+  nullable    = false
+}
+
 # INFO: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
 variable "content_security_policy_header" {
   description = <<EOF
