@@ -84,6 +84,9 @@ resource "aws_cloudfront_origin_access_identity" "this" {
 # TODO
 # - `default_cache_behavior.trusted_key_groups`
 # - `ordered_cache_behavior.trusted_key_groups`
+# - `continuous_deployment_policy_id`
+# - `staging`
+# - `origin.origin_access_control_id`
 resource "aws_cloudfront_distribution" "this" {
   aliases = var.aliases
   comment = var.description
@@ -114,11 +117,11 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
 
-  ## Restriction
+  ## Geographic Restriction
   restrictions {
     geo_restriction {
-      restriction_type = lower(var.restriction_type)
-      locations        = var.restriction_locations
+      restriction_type = lower(var.geographic_restriction.type)
+      locations        = var.geographic_restriction.countries
     }
   }
 
@@ -143,13 +146,13 @@ resource "aws_cloudfront_distribution" "this" {
     content {
       origin_id   = s3.key
       domain_name = s3.value.host
-      origin_path = try(s3.value.path, null)
+      origin_path = s3.value.path
 
-      connection_attempts = try(s3.value.connection_attempts, null)
-      connection_timeout  = try(s3.value.connection_timeout, null)
+      connection_attempts = s3.value.connection_attempts
+      connection_timeout  = s3.value.connection_timeout
 
       dynamic "custom_header" {
-        for_each = try(s3.value.custom_headers, {})
+        for_each = s3.value.custom_headers
 
         content {
           name  = custom_header.key
@@ -158,7 +161,7 @@ resource "aws_cloudfront_distribution" "this" {
       }
 
       dynamic "origin_shield" {
-        for_each = try(s3.value.origin_shield.enabled, false) ? [s3.value.origin_shield] : []
+        for_each = s3.value.origin_shield != null ? [s3.value.origin_shield] : []
 
         content {
           enabled              = origin_shield.value.enabled
@@ -180,13 +183,13 @@ resource "aws_cloudfront_distribution" "this" {
     content {
       origin_id   = custom.key
       domain_name = custom.value.host
-      origin_path = try(custom.value.path, null)
+      origin_path = custom.value.path
 
-      connection_attempts = try(custom.value.connection_attempts, null)
-      connection_timeout  = try(custom.value.connection_timeout, null)
+      connection_attempts = custom.value.connection_attempts
+      connection_timeout  = custom.value.connection_timeout
 
       dynamic "custom_header" {
-        for_each = try(custom.value.custom_headers, {})
+        for_each = custom.value.custom_headers
 
         content {
           name  = custom_header.key
@@ -195,7 +198,7 @@ resource "aws_cloudfront_distribution" "this" {
       }
 
       dynamic "origin_shield" {
-        for_each = try(custom.value.origin_shield.enabled, false) ? [custom.value.origin_shield] : []
+        for_each = custom.value.origin_shield != null ? [custom.value.origin_shield] : []
 
         content {
           enabled              = origin_shield.value.enabled
@@ -204,19 +207,13 @@ resource "aws_cloudfront_distribution" "this" {
       }
 
       custom_origin_config {
-        http_port  = try(custom.value.http_port, 80)
-        https_port = try(custom.value.https_port, 443)
-        origin_protocol_policy = try(
-          local.origin_protocol_policy[custom.value.protocol_policy],
-          local.origin_protocol_policy["MATCH_VIEWER"]
-        )
-        origin_ssl_protocols = try(
-          local.origin_ssl_security_policy[custom.value.ssl_security_policy],
-          local.origin_ssl_security_policy["TLSv1.1"]
-        )
+        http_port              = custom.value.http_port
+        https_port             = custom.value.https_port
+        origin_protocol_policy = local.origin_protocol_policy[custom.value.protocol_policy]
+        origin_ssl_protocols   = local.origin_ssl_security_policy[custom.value.ssl_security_policy]
 
-        origin_keepalive_timeout = try(custom.value.keepalive_timeout, null)
-        origin_read_timeout      = try(custom.value.response_timeout, null)
+        origin_keepalive_timeout = custom.value.keepalive_timeout
+        origin_read_timeout      = custom.value.response_timeout
       }
     }
   }
@@ -245,31 +242,31 @@ resource "aws_cloudfront_distribution" "this" {
 
   ## Default Behavior
   default_cache_behavior {
-    target_origin_id = var.default_target_origin
+    target_origin_id = var.default_behavior.target_origin
 
-    compress         = var.default_compression_enabled
-    smooth_streaming = var.default_smooth_streaming_enabled
+    compress         = var.default_behavior.compression_enabled
+    smooth_streaming = var.default_behavior.smooth_streaming_enabled
 
-    field_level_encryption_id = (var.default_viewer_protocol_policy == "HTTPS_ONLY" && contains(var.default_allowed_http_methods, "POST") && contains(var.default_allowed_http_methods, "PUT")
-      ? var.default_field_level_encryption_configuration
+    field_level_encryption_id = (var.default_behavior.viewer_protocol_policy == "HTTPS_ONLY" && contains(var.default_behavior.allowed_http_methods, "POST") && contains(var.default_behavior.allowed_http_methods, "PUT")
+      ? var.default_behavior.field_level_encryption_configuration
       : null
     )
-    realtime_log_config_arn = var.default_realtime_log_configuration
+    realtime_log_config_arn = var.default_behavior.realtime_log_configuration
 
     # Viewer
-    viewer_protocol_policy = local.viewer_protocol_policy[var.default_viewer_protocol_policy]
-    allowed_methods        = var.default_allowed_http_methods
-    cached_methods         = var.default_cached_http_methods
+    viewer_protocol_policy = local.viewer_protocol_policy[var.default_behavior.viewer_protocol_policy]
+    allowed_methods        = var.default_behavior.allowed_http_methods
+    cached_methods         = var.default_behavior.cached_http_methods
 
     # Policies
-    cache_policy_id            = var.default_cache_policy
-    origin_request_policy_id   = var.default_origin_request_policy
-    response_headers_policy_id = var.default_response_headers_policy
+    cache_policy_id            = var.default_behavior.cache_policy
+    origin_request_policy_id   = var.default_behavior.origin_request_policy
+    response_headers_policy_id = var.default_behavior.response_headers_policy
 
     # Function Associations
     dynamic "lambda_function_association" {
       for_each = {
-        for event, f in try(var.default_function_associations, {}) :
+        for event, f in var.default_behavior.function_associations :
         event => f
         if contains(keys(local.cloudfront_events), event) && f.type == "LAMBDA_EDGE"
       }
@@ -279,12 +276,12 @@ resource "aws_cloudfront_distribution" "this" {
         event_type = local.cloudfront_events[lambda.key]
         lambda_arn = lambda.value.function
 
-        include_body = try(lambda.value.include_body, false)
+        include_body = lambda.value.include_body
       }
     }
     dynamic "function_association" {
       for_each = {
-        for event, f in try(var.default_function_associations, {}) :
+        for event, f in var.default_behavior.function_associations :
         event => f
         if contains(["VIEWER_REQUEST", "VIEWER_RESPONSE"], event) && f.type == "CLOUDFRONT"
       }
@@ -297,30 +294,39 @@ resource "aws_cloudfront_distribution" "this" {
     }
 
     # Cache Key & Origin Requests (Legacy)
-    min_ttl = (var.default_cache_policy == null
-      ? try(var.default_cache_ttl.min, 0)
+    min_ttl = (var.default_behavior.legacy_cache_config.enabled
+      ? var.default_behavior.legacy_cache_config.min_ttl
       : null
     )
-    default_ttl = (var.default_cache_policy == null
-      ? try(var.default_cache_ttl.default, 0)
+    default_ttl = (var.default_behavior.legacy_cache_config.enabled
+      ? var.default_behavior.legacy_cache_config.default_ttl
       : null
     )
-    max_ttl = (var.default_cache_policy == null
-      ? try(var.default_cache_ttl.max, 0)
+    max_ttl = (var.default_behavior.legacy_cache_config.enabled
+      ? var.default_behavior.legacy_cache_config.max_ttl
       : null
     )
 
     dynamic "forwarded_values" {
-      for_each = var.default_cache_policy == null ? ["go"] : []
+      for_each = var.default_behavior.legacy_cache_config.enabled ? [var.default_behavior.legacy_cache_config] : []
+      iterator = config
 
       content {
-        headers      = []
-        query_string = true
-
         cookies {
-          forward           = "none"
-          whitelisted_names = []
+          forward           = lower(config.forwarding_cookies.behavior)
+          whitelisted_names = config.value.forwarding_cookies.items
         }
+
+        headers = (config.value.forwarding_query_strings.behavior == "ALL"
+          ? ["*"]
+          : config.value.forwarding_query_strings.items
+        )
+
+        query_string = contains(["ALL", "WHITELIST"], config.value.forwarding_query_strings.behavior)
+        query_string_cache_keys = (config.value.forwarding_query_strings.behavior == "ALL"
+          ? null
+          : config.value.forwarding_query_strings.items
+        )
       }
     }
   }
@@ -335,32 +341,29 @@ resource "aws_cloudfront_distribution" "this" {
       path_pattern     = behavior.value.path_pattern
       target_origin_id = behavior.value.target_origin
 
-      compress         = try(behavior.value.compression_enabled, true)
-      smooth_streaming = try(behavior.value.smooth_streaming_enabled, false)
+      compress         = behavior.value.compression_enabled
+      smooth_streaming = behavior.value.smooth_streaming_enabled
+
+      field_level_encryption_id = (behavior.value.viewer_protocol_policy == "HTTPS_ONLY" && contains(behavior.value.allowed_http_methods, "POST") && contains(behavior.value.allowed_http_methods, "PUT")
+        ? behavior.value.field_level_encryption_configuration
+        : null
+      )
+      realtime_log_config_arn = behavior.value.realtime_log_configuration
 
       # Viewer
-      viewer_protocol_policy = try(
-        local.viewer_protocol_policy[behavior.value.viewer_protocol_policy],
-        local.viewer_protocol_policy["REDIRECT_TO_HTTPS"],
-      )
-      allowed_methods = try(
-        toset(behavior.value.allowed_http_methods),
-        toset(["GET", "HEAD"])
-      )
-      cached_methods = try(
-        toset(behavior.value.cached_http_methods),
-        toset(["GET", "HEAD"])
-      )
+      viewer_protocol_policy = local.viewer_protocol_policy[behavior.value.viewer_protocol_policy]
+      allowed_methods        = behavior.value.allowed_http_methods
+      cached_methods         = behavior.value.cached_http_methods
 
       # Policies
-      cache_policy_id            = try(behavior.value.cache_policy, null)
-      origin_request_policy_id   = try(behavior.value.origin_request_policy, null)
-      response_headers_policy_id = try(behavior.value.response_headers_policy, null)
+      cache_policy_id            = behavior.value.cache_policy
+      origin_request_policy_id   = behavior.value.origin_request_policy
+      response_headers_policy_id = behavior.value.response_headers_policy
 
       # Function Associations
       dynamic "lambda_function_association" {
         for_each = {
-          for event, f in try(behavior.value.function_associations, {}) :
+          for event, f in behavior.value.function_associations :
           event => f
           if contains(keys(local.cloudfront_events), event) && f.type == "LAMBDA_EDGE"
         }
@@ -370,12 +373,12 @@ resource "aws_cloudfront_distribution" "this" {
           event_type = local.cloudfront_events[lambda.key]
           lambda_arn = lambda.value.function
 
-          include_body = try(lambda.value.include_body, false)
+          include_body = lambda.value.include_body
         }
       }
       dynamic "function_association" {
         for_each = {
-          for event, f in try(behavior.value.function_associations, {}) :
+          for event, f in behavior.value.function_associations :
           event => f
           if contains(["VIEWER_REQUEST", "VIEWER_RESPONSE"], event) && f.type == "CLOUDFRONT"
         }
@@ -388,30 +391,39 @@ resource "aws_cloudfront_distribution" "this" {
       }
 
       # Cache Key & Origin Requests (Legacy)
-      min_ttl = (behavior.value.cache_policy == null
-        ? try(behavior.cache_ttl.min, 0)
+      min_ttl = (behavior.value.legacy_cache_config.enabled
+        ? behavior.legacy_cache_config.min_ttl
         : null
       )
-      default_ttl = (behavior.value.cache_policy == null
-        ? try(behavior.cache_ttl.default, 0)
+      default_ttl = (behavior.value.legacy_cache_config.enabled
+        ? behavior.legacy_cache_config.default_ttl
         : null
       )
-      max_ttl = (behavior.value.cache_policy == null
-        ? try(behavior.cache_ttl.max, 0)
+      max_ttl = (behavior.value.legacy_cache_config.enabled
+        ? behavior.legacy_cache_config.max_ttl
         : null
       )
 
       dynamic "forwarded_values" {
-        for_each = behavior.value.cache_policy == null ? ["go"] : []
+        for_each = behavior.value.legacy_cache_config.enabled ? [behavior.value.legacy_cache_config] : []
+        iterator = config
 
         content {
-          headers      = []
-          query_string = true
-
           cookies {
-            forward           = "none"
-            whitelisted_names = []
+            forward           = lower(config.forwarding_cookies.behavior)
+            whitelisted_names = config.value.forwarding_cookies.items
           }
+
+          headers = (config.value.forwarding_query_strings.behavior == "ALL"
+            ? ["*"]
+            : config.value.forwarding_query_strings.items
+          )
+
+          query_string = contains(["ALL", "WHITELIST"], config.value.forwarding_query_strings.behavior)
+          query_string_cache_keys = (config.value.forwarding_query_strings.behavior == "ALL"
+            ? null
+            : config.value.forwarding_query_strings.items
+          )
         }
       }
     }

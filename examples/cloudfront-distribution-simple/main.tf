@@ -20,9 +20,11 @@ module "distribution" {
       host = "api.example.com"
     }
   }
-  default_target_origin = "api"
+  default_behavior = {
+    target_origin = "api"
+  }
 
   tags = {
-    "project" = "terraform-aws-secret-examples"
+    "project" = "terraform-aws-cloudfront-examples"
   }
 }

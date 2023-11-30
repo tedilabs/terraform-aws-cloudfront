@@ -1,6 +1,7 @@
 variable "name" {
   description = "(Required) The name of the CloudFront distribution."
   type        = string
+  nullable    = false
 }
 
 variable "aliases" {
@@ -18,7 +19,7 @@ variable "description" {
 }
 
 variable "enabled" {
-  description = "(Optional) Whether the distribution is enabled to accept end user requests for content."
+  description = "(Optional) Whether the distribution is enabled to accept end user requests for content. Defaults to `true`."
   type        = bool
   default     = true
   nullable    = false
@@ -94,23 +95,23 @@ variable "error_responses" {
   nullable    = false
 }
 
-variable "restriction_type" {
-  description = "(Optional) The method that you want to use to restrict distribution of the content by country. Valid values are `NONE`, `WHITELIST` or `BLACKLIST`. Defaults to `NONE`"
-  type        = string
-  default     = "NONE"
-  nullable    = false
+variable "geographic_restriction" {
+  description = <<EOF
+  (Optional) A configuration for CloudFront geographic restrictions. `geographic_restriction` as defined below.
+    (Optiona) `type` - The method that you want to use to restrict distribution of the content by country. Valid values are `NONE`, `WHITELIST` or `BLACKLIST`. Defaults to `NONE`.
+    (Optiona) `countries` - A list of the ISO 3166-1-alpha-2 codes for which you want CloudFront either to distribute your content (`WHITELIST`) or not distribute your content (`BLACKLIST`).
+  EOF
+  type = object({
+    type      = optional(string, "NONE")
+    countries = optional(set(string), [])
+  })
+  default  = {}
+  nullable = false
 
   validation {
-    condition     = contains(["NONE", "WHITELIST", "BLACKLIST"], var.restriction_type)
-    error_message = "Valid values are `NONE`, `WHITELIST`, `BLACKLIST`."
+    condition     = contains(["NONE", "WHITELIST", "BLACKLIST"], var.geographic_restriction.type)
+    error_message = "Valid values for `geographic_restriction.type` are `NONE`, `WHITELIST`, `BLACKLIST`."
   }
-}
-
-variable "restriction_locations" {
-  description = "(Optional) A list of the ISO 3166-1-alpha-2 codes for which you want CloudFront either to distribute your content (`WHITELIST`) or not distribute your content (`BLACKLIST`)."
-  type        = set(string)
-  default     = []
-  nullable    = false
 }
 
 variable "ssl_certificate_provider" {
@@ -183,9 +184,19 @@ variable "s3_origins" {
     (Optional) `connection_attempts` - The number of times that CloudFront attempts to connect to the origin, from `1` to `3`. Defaults to `3`.
     (Optional) `connection_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `10`. Defaults to `10`.
   EOF
-  type        = any
-  default     = {}
-  nullable    = false
+  type = map(object({
+    host           = string
+    path           = optional(string)
+    custom_headers = optional(map(string), {})
+    origin_shield = optional(object({
+      enabled = bool
+      region  = string
+    }))
+    connection_attempts = optional(number, 3)
+    connection_timeout  = optional(number, 10)
+  }))
+  default  = {}
+  nullable = false
 
   validation {
     condition = alltrue([
@@ -194,7 +205,7 @@ variable "s3_origins" {
         substr(origin.path, 0, 1) == "/",
         substr(origin.path, -1, 0) != "/"
       ])
-      if try(origin.path, null) != null
+      if origin.path != null
     ])
     error_message = "The value for `path` must begins with a slash and do not end with a slash."
   }
@@ -218,9 +229,25 @@ variable "custom_origins" {
     (Optional) `keepalive_timeout` - The number of seconds that CloudFront maintains an idle connection with the origin, from `1` to `60`. But, the maximum can be changed arbitrarily by AWS Support to a much higher value. Defaults to `5`.
     (Optional) `response_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `60`. Defaults to `30`.
   EOF
-  type        = any
-  default     = {}
-  nullable    = false
+  type = map(object({
+    host                = string
+    path                = optional(string)
+    http_port           = optional(number, 80)
+    https_port          = optional(number, 443)
+    protocol_policy     = optional(string, "MATCH_VIEWER")
+    ssl_security_policy = optional(string, "TLSv1.1")
+    custom_headers      = optional(map(string), {})
+    origin_shield = optional(object({
+      enabled = bool
+      region  = string
+    }))
+    connection_attempts = optional(number, 3)
+    connection_timeout  = optional(number, 10)
+    keepalive_timeout   = optional(number, 5)
+    response_timeout    = optional(number, 30)
+  }))
+  default  = {}
+  nullable = false
 
   validation {
     condition = alltrue([
@@ -229,7 +256,7 @@ variable "custom_origins" {
         substr(origin.path, 0, 1) == "/",
         substr(origin.path, -1, 0) != "/"
       ])
-      if try(origin.path, null) != null
+      if origin.path != null
     ])
     error_message = "The value for `path` must begins with a slash and do not end with a slash."
   }
@@ -247,7 +274,6 @@ variable "custom_origins" {
           origin.https_port >= 1024 && origin.https_port <= 65535
         ])
       ])
-      if(try(origin.http_port, null) != null) || (try(origin.https_port, null) != null)
     ])
     error_message = "Valid values for ports include `80`, `443`, and `1024` to `65535`."
   }
@@ -256,7 +282,6 @@ variable "custom_origins" {
     condition = alltrue([
       for origin in var.custom_origins :
       contains(["HTTP_ONLY", "HTTPS_ONLY", "MATCH_VIEWER"], origin.protocol_policy)
-      if try(origin.protocol_policy, null) != null
     ])
     error_message = "Valid values for `protocol_policy` are `HTTP_ONLY`, `HTTPS_ONLY`, and `MATCH_VIEWER`."
   }
@@ -265,7 +290,6 @@ variable "custom_origins" {
     condition = alltrue([
       for origin in var.custom_origins :
       contains(["SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"], origin.ssl_security_policy)
-      if try(origin.ssl_security_policy, null) != null
     ])
     error_message = "Valid values for `ssl_security_policy` are `SSLv3`, `TLSv1`, `TLSv1.1`, and `TLSv1.2`."
   }
@@ -306,136 +330,116 @@ variable "origin_groups" {
   }
 }
 
-variable "default_target_origin" {
-  description = "(Required) The ID of existing origin or origin group that you want CloudFront to route requests to when a request matches the path pattern for the default behavior."
-  type        = string
-  nullable    = false
-}
-
-variable "default_compression_enabled" {
-  description = "(Optional) Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`."
-  type        = bool
-  default     = true
-  nullable    = false
-}
-
-variable "default_smooth_streaming_enabled" {
-  description = "(Optional) Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`."
-  type        = bool
-  default     = false
-  nullable    = false
-}
-
-variable "default_field_level_encryption_configuration" {
-  description = "(Optional) The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, the distribution must be configured to always use HTTPS, and to accept HTTP POST and PUT requests from viewers."
-  type        = string
-  default     = null
-}
-
-variable "default_realtime_log_configuration" {
-  description = "(Optional) The ARN of real-time log configuration for the default behavior. Real-time logs are delivered to the data stream in Amazon Kinesis Data Streams."
-  type        = string
-  default     = null
-}
-
-variable "default_viewer_protocol_policy" {
-  description = "(Optional) The protocol policy that viewers can use to access the contents in CloudFront edge locations when a request does not matches any path patttern in ordered behaviors. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`."
-  type        = string
-  default     = "REDIRECT_TO_HTTPS"
-  nullable    = false
-
-  validation {
-    condition     = contains(["ALLOW_ALL", "HTTPS_ONLY", "REDIRECT_TO_HTTPS"], var.default_viewer_protocol_policy)
-    error_message = "Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, `REDIRECT_TO_HTTPS`."
-  }
-}
-
-variable "default_allowed_http_methods" {
+variable "default_behavior" {
   description = <<EOF
-  (Optional) A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`. Defaults to `["GET", "HEAD"]`.`GET`, `HEAD`, `OPTIONS`, `PUT`, `POST`, `PATCH` and `DELETE`. Defaults to `GET` and `HEAD`.
-  EOF
-  type        = set(string)
-  default     = ["GET", "HEAD"]
-  nullable    = false
+  (Required) A default bahavior for the distribution. `default_behavior` as defined below.
+    (Required) `target_origin` - The ID of existing origin or origin group that you want CloudFront to route requests to when a request matches the path pattern for the default behavior.
+    (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
+    (Optional) `smooth_streaming_enabled` - Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`.
+    (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, the distribution must be configured to always use HTTPS, and to accept HTTP POST and PUT requests from viewers.
+    (Optional) `realtime_log_configuration` -The ARN of real-time log configuration for the default behavior. Real-time logs are delivered to the data stream in Amazon Kinesis Data Streams.
+    (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
+    (Optional) `allowed_http_methods` - A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` , `["GET", "HEAD", "OPTIONS"]`, or `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`. Defaults to `["GET", "HEAD"]`.
+    (Optional) `cached_http_methods` - A list of HTTP methods to cache. Controls whether CloudFront caches the response to requests using the specified HTTP methods. Valid values are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`. Defaults to `["GET", "HEAD"]`.
+    (Optional) `cache_policy` - The ID of the cache policy that you want to attach to the default behavior of the distribution.
+    (Optional) `origin_request_policy` - The ID of the origin request policy that you want to attach to the default behavior of the distribution.
+    (Optional) `response_headers_policy` - The ID of the response headers policy that you want to attach to the default behavior of the distribution.
+    (Optional) `legacy_cache_config` - The legacy cache configuration for the default behavior of the distribution. Recommend using a cache policy and origin request policy to control the cache key and origin requests. `legacy_cache_config` block as defined below.
+      (Opitonal) `enabled` - Whether to enable legacy cache configuration. Defaults to `false`.
+      (Optional) `min_ttl` - The minimum amount of time that you want objects to stay in CloudFront caches before CloudFront queries your origin to see whether the object has been updated. Defaults to `0`.
+      (Optional) `default_ttl` - The default amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request in the absence of an `Cache-Control max-age` or `Expires` header. Defaults to `86400`.
+      (Optional) `max_ttl` - The maximum amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request to your origin to determine whether the object has been updated. Only effective in the presence of `Cache-Control max-age`, `Cache-Control s-maxage`, and `Expires` headers. Defaults to `31536000`.
+      (Optional) `forwarding_cookies` - A configuration for specifying which cookies in viewer requests to be forwarded in the origin requests. `forwarding_cookies` as defined below.
+        (Required) `behavior` - Determine whether any cookies in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST` and `ALL`. Defaults to `NONE`.
+        (Optional) `items` - A list of cookie names. It only takes effect when `behavior` is `WHITELIST`.
+      (Optional) `forwarding_headers` - A configuration for specifying which headers in viewer requests to be forwarded in the origin requests. `forwarding_headers` as defined below.
+        (Required) `behavior` - Determine whether any headers in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST` and `ALL`. Defaults to `NONE`.
+        (Optional) `items` - A list of header names. It only takes effect when `behavior` is `WHITELIST`.
+      (Optional) `forwarding_query_strings` - A configuration for specifying which query strings in viewer requests to be forwarded in the origin requests. `forwarding_query_strings` as defined below.
+        (Required) `behavior` - Determine whether any query strings in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`. Defaults to `NONE`.
+        (Optional) `items` - A list of query string names. It only takes effect when `behavior` is `WHITELIST`.
+    (Optional) `function_associations` - The configuration for function associations to event of the CloudFront distribution. You can configure a Lambda@Edge function or CloudFront function.
 
-  validation {
-    condition = alltrue([
-      for method in var.default_allowed_http_methods :
-      contains(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"], method)
-    ])
-    error_message = "Valid values for `default_allowed_http_methods` are `GET`, `HEAD`, `OPTIONS`, `PUT`, `POST`, `PATCH` and `DELETE`."
-  }
-
-  validation {
-    condition     = contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"]), toset(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"])], var.default_allowed_http_methods)
-    error_message = <<EOF
-    Valid values for `default_allowed_http_methods` are `["GET", "HEAD"]`, `["GET", "HEAD", "OPTIONS"]` or `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`.
-    EOF
-  }
-}
-
-variable "default_cached_http_methods" {
-  description = <<EOF
-  (Optional) A list of HTTP methods to cache. Controls whether CloudFront caches the response to requests using the specified HTTP methods. Valid values are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`. Defaults to `["GET", "HEAD"]`.
-  EOF
-  type        = set(string)
-  default     = ["GET", "HEAD"]
-  nullable    = false
-
-  validation {
-    condition = alltrue([
-      for method in var.default_cached_http_methods :
-      contains(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"], method)
-    ])
-    error_message = "Valid values for `default_allowed_http_methods` are `GET`, `HEAD`, `OPTIONS`, `PUT`, `POST`, `PATCH` and `DELETE`."
-  }
-
-  validation {
-    condition     = contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"])], var.default_cached_http_methods)
-    error_message = <<EOF
-    Valid values for `default_cached_http_methods` are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`.
-    EOF
-  }
-}
-
-variable "default_cache_policy" {
-  description = "(Optional) The ID of the cache policy that you want to attach to the default behavior of the distribution."
-  type        = string
-  default     = null
-}
-
-variable "default_origin_request_policy" {
-  description = "(Optional) The ID of the origin request policy that you want to attach to the default behavior of the distribution."
-  type        = string
-  default     = null
-}
-
-variable "default_response_headers_policy" {
-  description = "(Optional) The ID of the response headers policy that you want to attach to the default behavior of the distribution."
-  type        = string
-  default     = null
-}
-
-variable "default_function_associations" {
-  description = <<EOF
-  (Optional) The configuration for function associations to event of the CloudFront distribution. You can configure a Lambda@Edge function or CloudFront function when one or more of the following CloudFront events occur:
+    Each key means the CloudFront event. Supported CloudFront events are `VIEWER_REQUEST`, `ORIGIN_REQUEST`, `ORIGIN_RESPONSE`, and `VIEWER_RESPONSE`.
     - `VIEWER_REQUEST`: When CloudFront receives a request from a viewer.
     - `ORIGIN_REQUEST`: Before CloudFront forwards a request to the origin.
     - `ORIGIN_RESPONSE`: When CloudFront receives a response from the origin.
     - `VIEWER_RESPONSE`: Before CloudFront returns the response to the viewer.
 
-  Each key means the CloudFront event. Supported CloudFront events are `VIEWER_REQUEST`, `ORIGIN_REQUEST`, `ORIGIN_RESPONSE`, and `VIEWER_RESPONSE`. Each value of `default_function_associtaions` as defined below.
-    (Required) `type` - The type of associated function. Valid values are `LAMBDA_EDGE` and `CLOUDFRONT`.
-    (Required) `function` - The ARN of the CloudFront function or the Lambda@Edge function.
-    (Optional) `include_body` - Whether to expose the request body to the Lambda@Edge function. Only valid when `type` is `LAMBDA_EDGE` on `VIEWER_REQUEST` and `ORIGIN_REQUEST` events. Defaults to `false`.
+    Each value of `default_function_associtaions` as defined below.
+      (Required) `type` - The type of associated function. Valid values are `LAMBDA_EDGE` and `CLOUDFRONT`.
+      (Required) `function` - The ARN of the CloudFront function or the Lambda@Edge function.
+      (Optional) `include_body` - Whether to expose the request body to the Lambda@Edge function. Only valid when `type` is `LAMBDA_EDGE` on `VIEWER_REQUEST` and `ORIGIN_REQUEST` events. Defaults to `false`.
   EOF
-  type        = any
-  default     = {}
-  nullable    = false
+  type = object({
+    target_origin = string
+
+    compression_enabled      = optional(bool, true)
+    smooth_streaming_enabled = optional(bool, false)
+
+    field_level_encryption_configuration = optional(string)
+    realtime_log_configuration           = optional(string)
+
+    viewer_protocol_policy = optional(string, "REDIRECT_TO_HTTPS")
+    allowed_http_methods   = optional(set(string), ["GET", "HEAD"])
+    cached_http_methods    = optional(set(string), ["GET", "HEAD"])
+
+    cache_policy            = optional(string)
+    origin_request_policy   = optional(string)
+    response_headers_policy = optional(string)
+
+    legacy_cache_config = optional(object({
+      enabled     = optional(bool, false)
+      min_ttl     = optional(number, 0)
+      default_ttl = optional(number, 86400)
+      max_ttl     = optional(number, 31536000)
+
+      forwarding_cookies = optional(object({
+        behavior = optional(string, "NONE")
+        items    = optional(set(string), [])
+      }), {})
+      forwarding_headers = optional(object({
+        behavior = optional(string, "NONE")
+        items    = optional(set(string), [])
+      }), {})
+      forwarding_query_strings = optional(object({
+        behavior = optional(string, "NONE")
+        items    = optional(set(string), [])
+      }), {})
+    }), {})
+
+    function_associations = optional(map(object({
+      type         = string
+      function     = string
+      include_body = optional(bool, false)
+    })), {})
+  })
+  nullable = false
+
+  validation {
+    condition     = contains(["ALLOW_ALL", "HTTPS_ONLY", "REDIRECT_TO_HTTPS"], var.default_behavior.viewer_protocol_policy)
+    error_message = <<EOF
+    Valid values for `viewer_protocol_policy` are `ALLOW_ALL`, `HTTPS_ONLY` or `REDIRECT_TO_HTTPS`.
+    EOF
+  }
+
+  validation {
+    condition     = contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"]), toset(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"])], var.default_behavior.allowed_http_methods)
+    error_message = <<EOF
+    Valid values for `allowed_http_methods` are `["GET", "HEAD"]`, `["GET", "HEAD", "OPTIONS"]`, `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"`.
+    EOF
+  }
+
+  validation {
+    condition     = contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"])], var.default_behavior.cached_http_methods)
+    error_message = <<EOF
+    Valid values for `cached_http_methods` are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`.
+    EOF
+  }
 
   validation {
     condition = alltrue([
-      for event in keys(var.default_function_associations) :
+      for event in keys(var.default_behavior.function_associations) :
       contains(["VIEWER_REQUEST", "ORIGIN_REQUEST", "ORIGIN_RESPONSE", "VIEWER_RESPONSE"], event)
     ])
     error_message = "Valid values for CloudFront events are `VIEWER_REQUEST`, `ORIGIN_REQUEST`, `ORIGIN_RESPONSE` and `VIEWER_RESPONSE`."
@@ -443,26 +447,26 @@ variable "default_function_associations" {
 
   validation {
     condition = alltrue([
-      for f in var.default_function_associations :
+      for f in var.default_behavior.function_associations :
       contains(["LAMBDA_EDGE", "CLOUDFRONT"], f.type)
     ])
     error_message = "Valid values for function types are `LAMBDA_EDGE` and `CLOUDFRONT`."
   }
-}
 
-variable "default_cache_ttl" {
-  description = <<EOF
-  (Optional) The configuration for cache TTL(Time-to-Live) values of the default behavior. `default_cache_ttl` block as defined below.
-    (Required) `min` - The minimum amount of time that you want objects to stay in CloudFront caches before CloudFront queries your origin to see whether the object has been updated.
-    (Required) `default` - The default amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request in the absence of an `Cache-Control max-age` or `Expires` header.
-    (Required) `max` - The maximum amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request to your origin to determine whether the object has been updated. Only effective in the presence of `Cache-Control max-age`, `Cache-Control s-maxage`, and `Expires` headers.
-  EOF
-  type = object({
-    min     = number
-    default = number
-    max     = number
-  })
-  default = null
+  validation {
+    condition     = contains(["NONE", "WHITELIST", "ALL"], var.default_behavior.legacy_cache_config.forwarding_cookies.behavior)
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
+  }
+
+  validation {
+    condition     = contains(["NONE", "WHITELIST", "ALL"], var.default_behavior.legacy_cache_config.forwarding_headers.behavior)
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
+  }
+
+  validation {
+    condition     = contains(["NONE", "WHITELIST", "ALL"], var.default_behavior.legacy_cache_config.forwarding_query_strings.behavior)
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
+  }
 }
 
 variable "ordered_behaviors" {
@@ -475,29 +479,81 @@ variable "ordered_behaviors" {
     (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, the distribution must be configured to always use HTTPS, and to accept HTTP POST and PUT requests from viewers.
     (Optional) `realtime_log_configuration` -The ARN of real-time log configuration for the behavior. Real-time logs are delivered to the data stream in Amazon Kinesis Data Streams.
     (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
-    (Optional) `allowed_http_methods` - A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`. Defaults to `["GET", "HEAD"]`.`GET`, `HEAD`, `OPTIONS`, `PUT`, `POST`, `PATCH` and `DELETE`. Defaults to `GET` and `HEAD`.
+    (Optional) `allowed_http_methods` - A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` , `["GET", "HEAD", "OPTIONS"]`, or `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`. Defaults to `["GET", "HEAD"]`.
     (Optional) `cached_http_methods` - A list of HTTP methods to cache. Controls whether CloudFront caches the response to requests using the specified HTTP methods. Valid values are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`. Defaults to `["GET", "HEAD"]`.
     (Optional) `cache_policy` - The ID of the cache policy that you want to attach to the behavior of the distribution.
     (Optional) `origin_request_policy` - The ID of the origin request policy that you want to attach to the behavior of the distribution.
     (Optional) `response_headers_policy` - The ID of the response headers policy that you want to attach to the behavior of the distribution.
-    (Optional) `cache_ttl` - The configuration for cache TTL(Time-to-Live) values of the behavior. `cache_ttl` block as defined below.
-      (Required) `min` - The minimum amount of time that you want objects to stay in CloudFront caches before CloudFront queries your origin to see whether the object has been updated.
-      (Required) `default` - The default amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request in the absence of an `Cache-Control max-age` or `Expires` header.
-      (Required) `max` - The maximum amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request to your origin to determine whether the object has been updated. Only effective in the presence of `Cache-Control max-age`, `Cache-Control s-maxage`, and `Expires` headers.
+    (Optional) `legacy_cache_config` - The legacy cache configuration for the behavior of the distribution. Recommend using a cache policy and origin request policy to control the cache key and origin requests. `legacy_cache_config` block as defined below.
+      (Opitonal) `enabled` - Whether to enable legacy cache configuration. Defaults to `false`.
+      (Optional) `min_ttl` - The minimum amount of time that you want objects to stay in CloudFront caches before CloudFront queries your origin to see whether the object has been updated. Defaults to `0`.
+      (Optional) `default_ttl` - The default amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request in the absence of an `Cache-Control max-age` or `Expires` header. Defaults to `86400`.
+      (Optional) `max_ttl` - The maximum amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request to your origin to determine whether the object has been updated. Only effective in the presence of `Cache-Control max-age`, `Cache-Control s-maxage`, and `Expires` headers. Defaults to `31536000`.
+      (Optional) `forwarding_cookies` - A configuration for specifying which cookies in viewer requests to be forwarded in the origin requests. `forwarding_cookies` as defined below.
+        (Required) `behavior` - Determine whether any cookies in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST` and `ALL`. Defaults to `NONE`.
+        (Optional) `items` - A list of cookie names. It only takes effect when `behavior` is `WHITELIST`.
+      (Optional) `forwarding_headers` - A configuration for specifying which headers in viewer requests to be forwarded in the origin requests. `forwarding_headers` as defined below.
+        (Required) `behavior` - Determine whether any headers in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST` and `ALL`. Defaults to `NONE`.
+        (Optional) `items` - A list of header names. It only takes effect when `behavior` is `WHITELIST`.
+      (Optional) `forwarding_query_strings` - A configuration for specifying which query strings in viewer requests to be forwarded in the origin requests. `forwarding_query_strings` as defined below.
+        (Required) `behavior` - Determine whether any query strings in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`. Defaults to `NONE`.
+        (Optional) `items` - A list of query string names. It only takes effect when `behavior` is `WHITELIST`.
     (Optional) `function_associations` - The configuration for function associations to event of the CloudFront distribution. You can configure a Lambda@Edge function or CloudFront function. Each key means the CloudFront event. Supported CloudFront events are `VIEWER_REQUEST`, `ORIGIN_REQUEST`, `ORIGIN_RESPONSE`, and `VIEWER_RESPONSE`. Each value of `default_function_associtaions` as defined below.
       (Required) `type` - The type of associated function. Valid values are `LAMBDA_EDGE` and `CLOUDFRONT`.
       (Required) `function` - The ARN of the CloudFront function or the Lambda@Edge function.
       (Optional) `include_body` - Whether to expose the request body to the Lambda@Edge function. Only valid when `type` is `LAMBDA_EDGE` on `VIEWER_REQUEST` and `ORIGIN_REQUEST` events. Defaults to `false`.
   EOF
-  type        = any
-  default     = []
-  nullable    = false
+  type = list(object({
+    path_pattern  = string
+    target_origin = string
+
+    compression_enabled      = optional(bool, true)
+    smooth_streaming_enabled = optional(bool, false)
+
+    field_level_encryption_configuration = optional(string)
+    realtime_log_configuration           = optional(string)
+
+    viewer_protocol_policy = optional(string, "REDIRECT_TO_HTTPS")
+    allowed_http_methods   = optional(set(string), ["GET", "HEAD"])
+    cached_http_methods    = optional(set(string), ["GET", "HEAD"])
+
+    cache_policy            = optional(string)
+    origin_request_policy   = optional(string)
+    response_headers_policy = optional(string)
+
+    legacy_cache_config = optional(object({
+      enabled     = optional(bool, false)
+      min_ttl     = optional(number, 0)
+      default_ttl = optional(number, 86400)
+      max_ttl     = optional(number, 31536000)
+
+      forwarding_cookies = optional(object({
+        behavior = optional(string, "NONE")
+        items    = optional(set(string), [])
+      }), {})
+      forwarding_headers = optional(object({
+        behavior = optional(string, "NONE")
+        items    = optional(set(string), [])
+      }), {})
+      forwarding_query_strings = optional(object({
+        behavior = optional(string, "NONE")
+        items    = optional(set(string), [])
+      }), {})
+    }), {})
+
+    function_associations = optional(map(object({
+      type         = string
+      function     = string
+      include_body = optional(bool, false)
+    })), {})
+  }))
+  default  = []
+  nullable = false
 
   validation {
     condition = alltrue([
       for behavior in var.ordered_behaviors :
       contains(["ALLOW_ALL", "HTTPS_ONLY", "REDIRECT_TO_HTTPS"], behavior.viewer_protocol_policy)
-      if try(behavior.viewer_protocol_policy, null) != null
     ])
     error_message = <<EOF
     Valid values for `viewer_protocol_policy` are `ALLOW_ALL`, `HTTPS_ONLY` or `REDIRECT_TO_HTTPS`.
@@ -507,8 +563,7 @@ variable "ordered_behaviors" {
   validation {
     condition = alltrue([
       for behavior in var.ordered_behaviors :
-      contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"]), toset(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"])], toset(behavior.allowed_http_methods))
-      if try(behavior.allowed_http_methods, null) != null
+      contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"]), toset(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"])], behavior.allowed_http_methods)
     ])
     error_message = <<EOF
     Valid values for `allowed_http_methods` are `["GET", "HEAD"]`, `["GET", "HEAD", "OPTIONS"]`, `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"`.
@@ -518,8 +573,7 @@ variable "ordered_behaviors" {
   validation {
     condition = alltrue([
       for behavior in var.ordered_behaviors :
-      contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"])], toset(behavior.cached_http_methods))
-      if try(behavior.cached_http_methods, null) != null
+      contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"])], behavior.cached_http_methods)
     ])
     error_message = <<EOF
     Valid values for `cached_http_methods` are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`.
@@ -533,7 +587,6 @@ variable "ordered_behaviors" {
         for event in keys(behavior.function_associations) :
         contains(["VIEWER_REQUEST", "ORIGIN_REQUEST", "ORIGIN_RESPONSE", "VIEWER_RESPONSE"], event)
       ])
-      if try(behavior.function_associations, null) != null
     ])
     error_message = "Valid values for CloudFront events are `VIEWER_REQUEST`, `ORIGIN_REQUEST`, `ORIGIN_RESPONSE` and `VIEWER_RESPONSE`."
   }
@@ -545,9 +598,32 @@ variable "ordered_behaviors" {
         for f in behavior.function_associations :
         contains(["LAMBDA_EDGE", "CLOUDFRONT"], f.type)
       ])
-      if try(behavior.function_associations, null) != null
     ])
     error_message = "Valid values for function types are `LAMBDA_EDGE` and `CLOUDFRONT`."
+  }
+
+  validation {
+    condition = alltrue([
+      for behavior in var.ordered_behaviors :
+      contains(["NONE", "WHITELIST", "ALL"], behavior.legacy_cache_config.forwarding_cookies.behavior)
+    ])
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
+  }
+
+  validation {
+    condition = alltrue([
+      for behavior in var.ordered_behaviors :
+      contains(["NONE", "WHITELIST", "ALL"], behavior.legacy_cache_config.forwarding_headers.behavior)
+    ])
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
+  }
+
+  validation {
+    condition = alltrue([
+      for behavior in var.ordered_behaviors :
+      contains(["NONE", "WHITELIST", "ALL"], behavior.legacy_cache_config.forwarding_query_strings.behavior)
+    ])
+    error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
   }
 }
 
@@ -609,16 +685,19 @@ variable "resource_group_enabled" {
   description = "(Optional) Whether to create Resource Group to find and group AWS resources which are created by this module."
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "resource_group_name" {
   description = "(Optional) The name of Resource Group. A Resource Group name can have a maximum of 127 characters, including letters, numbers, hyphens, dots, and underscores. The name cannot start with `AWS` or `aws`."
   type        = string
   default     = ""
+  nullable    = false
 }
 
 variable "resource_group_description" {
   description = "(Optional) The description of Resource Group."
   type        = string
   default     = "Managed by Terraform."
+  nullable    = false
 }
