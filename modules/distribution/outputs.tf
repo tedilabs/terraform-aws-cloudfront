@@ -91,15 +91,15 @@ output "error_responses" {
   }
 }
 
-output "restriction" {
+output "geographic_restriction" {
   description = <<EOF
-  The restriction configuration for the distribution.
+  The configuration for CloudFront geographic restrictions.
     `type` - The method to restrict distribution of the content by country.
-    `locations` - A list of the ISO 3166-1-alpha-2 codes of countries to distribute or not distribute the content.
+    `countries` - A list of the ISO 3166-1-alpha-2 codes of countries to distribute or not distribute the content.
   EOF
   value = {
     type      = upper(aws_cloudfront_distribution.this.restrictions[0].geo_restriction[0].restriction_type)
-    locations = aws_cloudfront_distribution.this.restrictions[0].geo_restriction[0].locations
+    countries = aws_cloudfront_distribution.this.restrictions[0].geo_restriction[0].locations
   }
 }
 
@@ -197,16 +197,16 @@ output "default_behavior" {
     origin_request_policy   = aws_cloudfront_distribution.this.default_cache_behavior[0].origin_request_policy_id
     response_headers_policy = aws_cloudfront_distribution.this.default_cache_behavior[0].response_headers_policy_id
 
-    function_associations = var.default_function_associations
-
-    cache_ttl = (var.default_cache_policy == null
+    legacy_cache_config = (var.default_behavior.legacy_cache_config.enabled
       ? {
-        min     = aws_cloudfront_distribution.this.default_cache_behavior[0].min_ttl
-        default = aws_cloudfront_distribution.this.default_cache_behavior[0].default_ttl
-        max     = aws_cloudfront_distribution.this.default_cache_behavior[0].max_ttl
+        min_ttl     = aws_cloudfront_distribution.this.default_cache_behavior[0].min_ttl
+        default_ttl = aws_cloudfront_distribution.this.default_cache_behavior[0].default_ttl
+        max_ttl     = aws_cloudfront_distribution.this.default_cache_behavior[0].max_ttl
       }
       : null
     )
+
+    function_associations = var.default_behavior.function_associations
   }
 }
 
@@ -236,16 +236,16 @@ output "ordered_behaviors" {
       origin_request_policy   = behavior.origin_request_policy_id
       response_headers_policy = behavior.response_headers_policy_id
 
-      function_associations = try(var.ordered_behaviors[idx].function_associations, {})
-
-      cache_ttl = (var.ordered_behaviors[idx].cache_policy == null
+      legacy_cache_config = (var.ordered_behaviors[idx].legacy_cache_config.enabled
         ? {
-          min     = behavior.min_ttl
-          default = behavior.default_ttl
-          max     = behavior.min_ttl
+          min_ttl     = behavior.min_ttl
+          default_ttl = behavior.default_ttl
+          max_ttl     = behavior.min_ttl
         }
         : null
       )
+
+      function_associations = var.ordered_behaviors[idx].function_associations
     }
   ]
 }
