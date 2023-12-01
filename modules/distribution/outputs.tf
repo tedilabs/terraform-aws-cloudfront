@@ -18,11 +18,6 @@ output "name" {
   value       = var.name
 }
 
-output "aliases" {
-  description = "A list of alternate domain names for the distribution."
-  value       = aws_cloudfront_distribution.this.aliases
-}
-
 output "description" {
   description = "The description of the distribution."
   value       = aws_cloudfront_distribution.this.comment
@@ -63,14 +58,19 @@ output "waf_web_acl" {
   value       = aws_cloudfront_distribution.this.web_acl_id
 }
 
-output "zone_id" {
-  description = "The CloudFront Route 53 zone ID that can be used to route an Alias Resource Record Set to."
-  value       = aws_cloudfront_distribution.this.hosted_zone_id
-}
-
 output "domain" {
-  description = "The domain name corresponding to the distribution. For example: `d604721fxaaqy9.cloudfront.net`."
-  value       = aws_cloudfront_distribution.this.domain_name
+  description = <<EOF
+  The domain configuration for the distribution.
+    `name` - The domain name corresponding to the distribution. For example: `d604721fxaaqy9.cloudfront.net`.
+    `hosted_zone` - The CloudFront Route 53 zone ID that can be used to route an Alias Resource Record Set to.
+    `aliases` - A list of CNAME aliases for the distribution.
+  EOF
+  value = {
+    name        = aws_cloudfront_distribution.this.domain_name
+    hosted_zone = aws_cloudfront_distribution.this.hosted_zone_id
+
+    aliases = aws_cloudfront_distribution.this.aliases
+  }
 }
 
 output "root_object" {
@@ -89,6 +89,16 @@ output "error_responses" {
       custom_response_path = response.response_page_path
     }
   }
+}
+
+output "is_staging" {
+  description = "Whether the distribution is a staging distribution."
+  value       = aws_cloudfront_distribution.this.staging
+}
+
+output "continuous_deployment_policy" {
+  description = "The ID of a continuous deployment policy."
+  value       = aws_cloudfront_distribution.this.continuous_deployment_policy_id
 }
 
 output "geographic_restriction" {
@@ -122,20 +132,6 @@ output "ssl" {
   }
 }
 
-output "origin_access_identity" {
-  description = <<EOF
-  The information for the origin access identity of the distribution.
-  EOF
-  value = {
-    id   = aws_cloudfront_origin_access_identity.this.id
-    name = aws_cloudfront_origin_access_identity.this.comment
-
-    cloudfront_access_identity_path = aws_cloudfront_origin_access_identity.this.cloudfront_access_identity_path
-    iam_arn                         = aws_cloudfront_origin_access_identity.this.iam_arn
-    s3_canonical_user_id            = aws_cloudfront_origin_access_identity.this.s3_canonical_user_id
-  }
-}
-
 output "origins" {
   description = <<EOF
   The configuration for origins of the distribution.
@@ -148,11 +144,30 @@ output "origins" {
       host = origin.domain_name
       path = origin.origin_path
 
+      origin_access = {
+        type = (origin.origin_access_control_id != null
+          ? "CONTROL"
+          : (length(origin.s3_origin_config) > 0
+            ? "IDENTITY"
+            : "NONE"
+          )
+        )
+        id = (origin.origin_access_control_id != null
+          ? origin.origin_access_control_id
+          : (length(origin.s3_origin_config) > 0
+            ? origin.s3_origin_config[0].origin_access_identity
+            : null
+          )
+        )
+      }
       custom_headers = {
         for item in origin.custom_header :
         item.name => item.value
       }
       origin_shield = one(origin.origin_shield[*])
+
+      connection_attempts = origin.connection_attempts
+      connection_timeout  = origin.connection_timeout
     }
   }
 }
@@ -202,6 +217,10 @@ output "default_behavior" {
         min_ttl     = aws_cloudfront_distribution.this.default_cache_behavior[0].min_ttl
         default_ttl = aws_cloudfront_distribution.this.default_cache_behavior[0].default_ttl
         max_ttl     = aws_cloudfront_distribution.this.default_cache_behavior[0].max_ttl
+
+        forwarding_cookies       = var.default_behavior.legacy_cache_config.forwarding_cookies
+        forwarding_headers       = var.default_behavior.legacy_cache_config.forwarding_headers
+        forwarding_query_strings = var.default_behavior.legacy_cache_config.forwarding_query_strings
       }
       : null
     )
@@ -241,6 +260,10 @@ output "ordered_behaviors" {
           min_ttl     = behavior.min_ttl
           default_ttl = behavior.default_ttl
           max_ttl     = behavior.min_ttl
+
+          forwarding_cookies       = var.ordered_behaviors[idx].legacy_cache_config.forwarding_cookies
+          forwarding_headers       = var.ordered_behaviors[idx].legacy_cache_config.forwarding_headers
+          forwarding_query_strings = var.ordered_behaviors[idx].legacy_cache_config.forwarding_query_strings
         }
         : null
       )
@@ -280,20 +303,3 @@ output "monitoring" {
 #   value       = aws_cloudfront_distribution.this.trusted_key_groups
 # }
 #
-# output "zzzz" {
-#   description = "The list of log streams for the log group."
-#   value = {
-#     default_cache_behavior = {
-#       for k, v in one(aws_cloudfront_distribution.this.default_cache_behavior[*]) :
-#       k => v
-#       if !contains(["target_origin_id", "cached_methods", "path_pattern", "compress", "allowed_methods", "viewer_protocol_policy", "smooth_streaming", "cache_policy_id", "origin_request_policy_id", "response_headers_policy_id", "default_ttl", "min_ttl", "max_ttl", "function_association", "lambda_function_association", "field_level_encryption_id", "realtime_log_config_arn"], k)
-#     }
-#     ordered_cache_behaviors = [
-#       for behavior in aws_cloudfront_distribution.this.ordered_cache_behavior[*] : {
-#         for k, v in behavior :
-#         k => v
-#         if !contains(["target_origin_id", "cached_methods", "path_pattern", "compress", "allowed_methods", "viewer_protocol_policy", "smooth_streaming", "cache_policy_id", "origin_request_policy_id", "response_headers_policy_id", "default_ttl", "min_ttl", "max_ttl", "function_association", "lambda_function_association", "field_level_encryption_id", "realtime_log_config_arn"], k)
-#       }
-#     ]
-#   }
-# }

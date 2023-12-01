@@ -25,6 +25,20 @@ variable "enabled" {
   nullable    = false
 }
 
+variable "retain_on_deletion_enabled" {
+  description = "(Optional) Disable the distribution instead of deleting it when destroying the resource through Terraform. If this is `true`, the distribution needs to be deleted manually afterwards. Defaults to `false`."
+  type        = bool
+  default     = false
+  nullable    = false
+}
+
+variable "wait_for_deployment_enabled" {
+  description = "(Optional) Whether to wait for the distribution status to change from `InProgress` to `Deployed`. Skip the deployment waiting process if disabled. Defaults to `true`."
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
 variable "price_class" {
   description = "(Optional) The price class for this distribution. Valid values are `ALL`, `200` or `100`. Defaults to `ALL`."
   type        = string
@@ -60,20 +74,21 @@ variable "waf_web_acl" {
   description = "(Optional) The ARN of a web ACL on WAFv2 to associate with this distribution. Example: `aws_wafv2_web_acl.example.arn`. The WAF Web ACL must exist in the WAF Global (CloudFront) region and the credentials configuring this argument must have `waf:GetWebACL` permissions assigned."
   type        = string
   default     = null
+  nullable    = true
 }
 
-variable "retain_on_deletion_enabled" {
-  description = "(Optional) Disable the distribution instead of deleting it when destroying the resource through Terraform. If this is `true`, the distribution needs to be deleted manually afterwards. Defaults to `false`."
+variable "is_staging" {
+  description = "(Optional) Whether this distribution is a staging distribution. Staging distributions are used for viewing the latest version of a website or application. Defaults to `false`."
   type        = bool
   default     = false
   nullable    = false
 }
 
-variable "wait_for_deployment_enabled" {
-  description = "(Optional) Whether to wait for the distribution status to change from `InProgress` to `Deployed`. Skip the deployment waiting process if disabled. Defaults to `true`."
-  type        = bool
-  default     = true
-  nullable    = false
+variable "continuous_deployment_policy" {
+  description = "(Optional) The ID of a continuous deployment policy. This argument should only be set on a production distribution."
+  type        = string
+  default     = null
+  nullable    = true
 }
 
 variable "root_object" {
@@ -177,6 +192,9 @@ variable "s3_origins" {
   (Optional) A configuration for S3 origins of the distribution. Each key defines a name of each S3 origin. Each value of `s3_origins` as defined below.
     (Required) `host` - The DNS domain name of either the S3 bucket.
     (Optional) `path` - The URL path to append to `host` which the origin domain name for origin requests. Enter the directory path, beginning with a slash (/). Do not add a slash (/) at the end of the path.
+    (Optional) `origin_access` - The configuration of origin access for the origin. `origin_access` block as defined below.
+      (Optional) `type` - The type of origin access. Valid values are `CONTROL`, `IDENTITY` and `NONE`. Defaults to `CONTROL`.
+      (Optional) `id` - The ID of origin access control if `type` is `CONTROL`. The full path of the origin access identity if `type` is `IDENTITY`.
     (Optional) `custom_headers` - A map of custom HTTP headers to include in all requests to the origin. Each key/value is mapping to HTTP header `name`/`value`.
     (Optional) `origin_shield` - Origin Shield is an additional caching layer that can help reduce the load on your origin and help protect its availability. `origin_shield` block as defined below.
       (Required) `enabled` - Whether to enable Origin Shield. Defaults to `false`.
@@ -185,8 +203,12 @@ variable "s3_origins" {
     (Optional) `connection_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `10`. Defaults to `10`.
   EOF
   type = map(object({
-    host           = string
-    path           = optional(string)
+    host = string
+    path = optional(string)
+    origin_access = optional(object({
+      type = optional(string, "CONTROL")
+      id   = optional(string)
+    }))
     custom_headers = optional(map(string), {})
     origin_shield = optional(object({
       enabled = bool
@@ -209,6 +231,14 @@ variable "s3_origins" {
     ])
     error_message = "The value for `path` must begins with a slash and do not end with a slash."
   }
+
+  validation {
+    condition = alltrue([
+      for origin in var.s3_origins :
+      contains(["CONTROL", "IDENTITY", "NONE"], origin.origin_access.type)
+    ])
+    error_message = "Valid values for `origin_access.type` are `CONTROL`, `IDENTITY` and `NONE`."
+  }
 }
 
 variable "custom_origins" {
@@ -218,6 +248,9 @@ variable "custom_origins" {
     (Optional) `path` - The URL path to append to `host` which the origin domain name for origin requests. Enter the directory path, beginning with a slash (/). Do not add a slash (/) at the end of the path.
     (Optional) `http_port` - The HTTP port the custom origin listens on. Defaults to `80`.
     (Optional) `https_port` - The HTTPS port the custom origin listens on. Defaults to `443`.
+    (Optional) `origin_access` - The configuration of origin access for the origin. `origin_access` block as defined below.
+      (Optional) `type` - The type of origin access. Valid values are `CONTROL` and `NONE`. Defaults to `NONE`.
+      (Optional) `id` - The ID of origin access control if `type` is `CONTROL`.
     (Optional) `protocol_policy` - The origin protocol policy to apply to your origin. The origin protocol policy determines the protocol (HTTP or HTTPS) that you want CloudFront to use when connecting to the origin. Valid values are `HTTP_ONLY`, `HTTPS_ONLY` or `MATCH_VIEWER`. Defaults to `MATCH_VIEWER`.
     (Optional) `ssl_security_policy` - The minimum SSL/TLS protocol that CloudFront uses with the origin over HTTPS. Valid values are `SSLv3`, `TLSv1`, `TLSv1.1`, and `TLSv1.2`. Defaults to `TLSv1.1`. Recommend the latest TLS protocol that the origin supports.
     (Optional) `custom_headers` - A map of custom HTTP headers to include in all requests to the origin. Each key/value is mapping to HTTP header `name`/`value`.
@@ -230,10 +263,14 @@ variable "custom_origins" {
     (Optional) `response_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `60`. Defaults to `30`.
   EOF
   type = map(object({
-    host                = string
-    path                = optional(string)
-    http_port           = optional(number, 80)
-    https_port          = optional(number, 443)
+    host       = string
+    path       = optional(string)
+    http_port  = optional(number, 80)
+    https_port = optional(number, 443)
+    origin_access = optional(object({
+      type = optional(string, "NONE")
+      id   = optional(string)
+    }))
     protocol_policy     = optional(string, "MATCH_VIEWER")
     ssl_security_policy = optional(string, "TLSv1.1")
     custom_headers      = optional(map(string), {})
@@ -276,6 +313,14 @@ variable "custom_origins" {
       ])
     ])
     error_message = "Valid values for ports include `80`, `443`, and `1024` to `65535`."
+  }
+
+  validation {
+    condition = alltrue([
+      for origin in var.custom_origins :
+      contains(["CONTROL", "NONE"], origin.origin_access.type)
+    ])
+    error_message = "Valid values for `origin_access.type` are `CONTROL` and `NONE`."
   }
 
   validation {

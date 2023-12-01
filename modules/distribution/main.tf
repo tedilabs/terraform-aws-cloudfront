@@ -57,15 +57,6 @@ locals {
 
 
 ###################################################
-# Origin Access Identity for CloudFront Distribution
-###################################################
-
-resource "aws_cloudfront_origin_access_identity" "this" {
-  comment = var.name
-}
-
-
-###################################################
 # CloudFront Distribution
 ###################################################
 
@@ -84,21 +75,24 @@ resource "aws_cloudfront_origin_access_identity" "this" {
 # TODO
 # - `default_cache_behavior.trusted_key_groups`
 # - `ordered_cache_behavior.trusted_key_groups`
-# - `continuous_deployment_policy_id`
-# - `staging`
-# - `origin.origin_access_control_id`
 resource "aws_cloudfront_distribution" "this" {
   aliases = var.aliases
   comment = var.description
   enabled = var.enabled
 
+  retain_on_delete    = var.retain_on_deletion_enabled
+  wait_for_deployment = var.wait_for_deployment_enabled
+
   price_class     = local.price_class[var.price_class]
   http_version    = local.http_version[var.http_version]
   is_ipv6_enabled = var.ipv6_enabled
-  web_acl_id      = var.waf_web_acl
 
-  retain_on_delete    = var.retain_on_deletion_enabled
-  wait_for_deployment = var.wait_for_deployment_enabled
+  web_acl_id = var.waf_web_acl
+
+
+  ## Deployment
+  staging                         = var.is_staging
+  continuous_deployment_policy_id = var.continuous_deployment_policy
 
 
   ## Default Pages
@@ -148,6 +142,11 @@ resource "aws_cloudfront_distribution" "this" {
       domain_name = s3.value.host
       origin_path = s3.value.path
 
+      origin_access_control_id = (s3.value.origin_access.type == "CONTROL"
+        ? s3.value.origin_access.id
+        : null
+      )
+
       connection_attempts = s3.value.connection_attempts
       connection_timeout  = s3.value.connection_timeout
 
@@ -169,8 +168,12 @@ resource "aws_cloudfront_distribution" "this" {
         }
       }
 
-      s3_origin_config {
-        origin_access_identity = aws_cloudfront_origin_access_identity.this.cloudfront_access_identity_path
+      dynamic "s3_origin_config" {
+        for_each = s3.value.origin_access.type == "IDENTITY" ? ["go"] : []
+
+        content {
+          origin_access_identity = s3.value.origin_access.id
+        }
       }
     }
   }
@@ -184,6 +187,11 @@ resource "aws_cloudfront_distribution" "this" {
       origin_id   = custom.key
       domain_name = custom.value.host
       origin_path = custom.value.path
+
+      origin_access_control_id = (custom.value.origin_access.type == "CONTROL"
+        ? custom.value.origin_access.id
+        : null
+      )
 
       connection_attempts = custom.value.connection_attempts
       connection_timeout  = custom.value.connection_timeout
