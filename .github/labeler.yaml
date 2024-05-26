@@ -1,11 +1,25 @@
 # Modules
 ":floppy_disk: distribution":
-- modules/distribution/**/*
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/distribution/**/*
+
 ":floppy_disk: cache-policy":
-- modules/cache-policy/**/*
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/cache-policy/**/*
+
 ":floppy_disk: origin-access-control":
-- modules/origin-access-control/**/*
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/origin-access-control/**/*
+
 ":floppy_disk: origin-request-policy":
-- modules/origin-request-policy/**/*
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/origin-request-policy/**/*
+
 ":floppy_disk: response-headers-policy":
-- modules/response-headers-policy/**/*
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/response-headers-policy/**/*
