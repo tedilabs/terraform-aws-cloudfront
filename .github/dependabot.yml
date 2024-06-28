@@ -7,10 +7,6 @@ updates:
 
 - package-ecosystem: terraform
   directories:
-  - /modules/cache-policy
-  - /modules/distribution
-  - /modules/origin-access-control
-  - /modules/origin-request-policy
-  - /modules/response-headers-policy
+  - /modules/*
   schedule:
     interval: weekly
