@@ -5,7 +5,7 @@ This module creates following resources.
 - `aws_cloudfront_distribution`
 - `aws_cloudfront_monitoring_subscription` (optional)
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -100,4 +100,4 @@ This module creates following resources.
 | <a name="output_status"></a> [status](#output\_status) | The current status of the distribution. `Deployed` if the distribution's information is fully propagated throughout the Amazon CloudFront system. |
 | <a name="output_updated_at"></a> [updated\_at](#output\_updated\_at) | The date and time the distribution was last modified. |
 | <a name="output_waf_web_acl"></a> [waf\_web\_acl](#output\_waf\_web\_acl) | The ARN of a web ACL on WAFv2 to associate with this distribution. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

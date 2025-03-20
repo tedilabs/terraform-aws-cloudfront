@@ -4,7 +4,7 @@ This module creates following resources.
 
 - `aws_cloudfront_origin_access_control`
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -48,4 +48,4 @@ No modules.
 | <a name="output_origin_type"></a> [origin\_type](#output\_origin\_type) | The type of origin that this origin access control is for. |
 | <a name="output_signing_behavior"></a> [signing\_behavior](#output\_signing\_behavior) | Specify which requests CloudFront signs (adds authentication information to). |
 | <a name="output_signing_protocol"></a> [signing\_protocol](#output\_signing\_protocol) | The signing protocol of the origin access control. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

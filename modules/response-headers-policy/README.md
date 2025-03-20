@@ -4,7 +4,7 @@ This module creates following resources.
 
 - `aws_cloudfront_response_headers_policy`
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -58,4 +58,4 @@ No modules.
 | <a name="output_remove_headers"></a> [remove\_headers](#output\_remove\_headers) | A set of HTTP headers to remove from the response headers. |
 | <a name="output_security_headers"></a> [security\_headers](#output\_security\_headers) | A configuration for several security-related HTTP response headers. |
 | <a name="output_server_timing_header"></a> [server\_timing\_header](#output\_server\_timing\_header) | A configuration for `Server-Timing` header in HTTP responses sent from CloudFront. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

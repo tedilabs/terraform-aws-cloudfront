@@ -4,7 +4,7 @@ This module creates following resources.
 
 - `aws_cloudfront_cache_policy`
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -57,4 +57,4 @@ No modules.
 | <a name="output_min_ttl"></a> [min\_ttl](#output\_min\_ttl) | The minimum time to live in seconds. |
 | <a name="output_name"></a> [name](#output\_name) | The name of the CloudFront cache policy. |
 | <a name="output_supported_compression_formats"></a> [supported\_compression\_formats](#output\_supported\_compression\_formats) | The list of compression formats to enable CloudFront to request and cache objects that are compressed in these compression formats, when the viewer supports it |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

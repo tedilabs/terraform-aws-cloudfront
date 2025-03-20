@@ -4,7 +4,7 @@ This module creates following resources.
 
 - `aws_cloudfront_origin_request_policy`
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -49,4 +49,4 @@ No modules.
 | <a name="output_forwarding_query_strings"></a> [forwarding\_query\_strings](#output\_forwarding\_query\_strings) | A configuration for specifying which query strings to be forwarded in the origin requests. |
 | <a name="output_id"></a> [id](#output\_id) | The identifier for the CloudFront origin request policy. |
 | <a name="output_name"></a> [name](#output\_name) | The name of the CloudFront origin request policy. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->
