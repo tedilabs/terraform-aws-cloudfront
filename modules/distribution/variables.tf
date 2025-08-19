@@ -517,7 +517,7 @@ variable "default_behavior" {
 variable "ordered_behaviors" {
   description = <<EOF
   (Optional) An ordered list of ordered bahaviors for the distribution. Each block of `ordered_behaviors` as defined below.
-    (Required) `path_pattern` - The pattern that specifies which requests you want this cache behavior to apply to. When CloudFront receives an end-user request, the requested path is compared with path patterns in the order in which cache behaviors are listed in the distribution. The first match determines which cache behavior is applied to that request. Path patterns support wildcard matching: `*` and `?`. Path patterns are case-sensitive, and support the following characters: a-z, A-Z, 0-9, `_-.*$/~"'@:+'"`, & (as `&amp;`).
+    (Required) `path_patterns` - A list of patterns that specifies which requests you want this cache behavior to apply to. When CloudFront receives an end-user request, the requested path is compared with path patterns in the order in which cache behaviors are listed in the distribution. The first match determines which cache behavior is applied to that request. Path patterns support wildcard matching: `*` and `?`. Path patterns are case-sensitive, and support the following characters: a-z, A-Z, 0-9, `_-.*$/~"'@:+'"`, & (as `&amp;`).
     (Required) `target_origin` - The ID of existing origin or origin group that you want CloudFront to route requests to when a request matches the path pattern for the behavior.
     (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
     (Optional) `smooth_streaming_enabled` - Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`.
@@ -549,7 +549,7 @@ variable "ordered_behaviors" {
       (Optional) `include_body` - Whether to expose the request body to the Lambda@Edge function. Only valid when `type` is `LAMBDA_EDGE` on `VIEWER_REQUEST` and `ORIGIN_REQUEST` events. Defaults to `false`.
   EOF
   type = list(object({
-    path_pattern  = string
+    path_patterns = list(string)
     target_origin = string
 
     compression_enabled      = optional(bool, true)
@@ -594,6 +594,14 @@ variable "ordered_behaviors" {
   }))
   default  = []
   nullable = false
+
+  validation {
+    condition = alltrue([
+      for behavior in var.ordered_behaviors :
+      length(behavior.path_patterns) > 0
+    ])
+    error_message = "At least one path pattern should be defined in `path_patterns`."
+  }
 
   validation {
     condition = alltrue([

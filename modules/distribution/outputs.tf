@@ -234,42 +234,13 @@ output "ordered_behaviors" {
   The configuration for ordered behaviors of the distribution.
   EOF
   value = [
-    for idx, behavior in aws_cloudfront_distribution.this.ordered_cache_behavior : {
-      path_pattern  = behavior.path_pattern
-      target_origin = behavior.target_origin_id
-
-      compression_enabled      = behavior.compress
-      smooth_streaming_enabled = behavior.smooth_streaming
-
-      field_level_encryption_configuration = behavior.field_level_encryption_id
-      realtime_log_configuration           = behavior.realtime_log_config_arn
-
-      viewer_protocol_policy = {
-        for k, v in local.viewer_protocol_policy :
-        v => k
-      }[behavior.viewer_protocol_policy]
-      allowed_http_methods = behavior.allowed_methods
-      cached_http_methods  = behavior.cached_methods
-
-      cache_policy            = behavior.cache_policy_id
-      origin_request_policy   = behavior.origin_request_policy_id
-      response_headers_policy = behavior.response_headers_policy_id
-
-      legacy_cache_config = (var.ordered_behaviors[idx].legacy_cache_config.enabled
-        ? {
-          min_ttl     = behavior.min_ttl
-          default_ttl = behavior.default_ttl
-          max_ttl     = behavior.min_ttl
-
-          forwarding_cookies       = var.ordered_behaviors[idx].legacy_cache_config.forwarding_cookies
-          forwarding_headers       = var.ordered_behaviors[idx].legacy_cache_config.forwarding_headers
-          forwarding_query_strings = var.ordered_behaviors[idx].legacy_cache_config.forwarding_query_strings
-        }
+    for behavior in var.ordered_behaviors :
+    merge(behavior, {
+      legacy_cache_config = (behavior.legacy_cache_config.enabled
+        ? behavior.legacy_cache_config
         : null
       )
-
-      function_associations = var.ordered_behaviors[idx].function_associations
-    }
+    })
   ]
 }
 

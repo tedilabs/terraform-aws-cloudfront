@@ -342,7 +342,14 @@ resource "aws_cloudfront_distribution" "this" {
 
   ## Ordered Behaviors
   dynamic "ordered_cache_behavior" {
-    for_each = var.ordered_behaviors
+    for_each = flatten([
+      for behavior in var.ordered_behaviors : [
+        for pattern in behavior.path_patterns :
+        merge(behavior, {
+          path_pattern = pattern
+        })
+      ]
+    ])
     iterator = behavior
 
     content {
