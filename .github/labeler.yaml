@@ -9,6 +9,11 @@
   - any-glob-to-any-file:
     - modules/cache-policy/**/*
 
+":floppy_disk: key-value-store":
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/key-value-store/**/*
+
 ":floppy_disk: origin-access-control":
 - changed-files:
   - any-glob-to-any-file:
