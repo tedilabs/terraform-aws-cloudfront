@@ -85,8 +85,13 @@ output "error_responses" {
     response.error_code => {
       cache_min_ttl = response.error_caching_min_ttl
 
-      custom_response_code = response.response_code
-      custom_response_path = response.response_page_path
+      custom_response = (response.response_code != null
+        ? {
+          status_code = response.response_code
+          path        = response.response_page_path
+        }
+        : null
+      )
     }
   }
 }

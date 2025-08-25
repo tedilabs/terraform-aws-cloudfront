@@ -102,12 +102,19 @@ variable "error_responses" {
   description = <<EOF
   (Optional) A configurations of custom error responses for the distribution. Each key means the HTTP status code that you want to customize like `404`, `503`. Each value of `error_responses` as defined below.
     (Optional) `cache_min_ttl` - The minimum TTL(Time-to-live) in seconds that you want HTTP error codes to stay in CloudFront caches before CloudFront queries your origin to see whether the object has been updated. Defaults to `10`.
-    (Optional) `custom_response_code` - The HTTP status code to return to the viewer. CloudFront can return a different status code to the viewer than what it received from the origin.
-    (Optional) `custom_response_path` - The path to the custom error response page.
+    (Optional) `custom_response` - A configuration for custom error response. `custom_response` block as defined below.
+      (Required) `status_code` - The HTTP status code that you want CloudFront to return to the viewer along with the custom error page. You must specify a value for `status_code`, even if it is the same value as the `error_code`.
+      (Required) `path` - The path of the custom error page that you want CloudFront to return to a viewer when your origin returns the corresponding `error_code`. The path must begin with a slash (/).
   EOF
-  type        = any
-  default     = {}
-  nullable    = false
+  type = map(object({
+    cache_min_ttl = optional(number, 10)
+    custom_response = optional(object({
+      status_code = number
+      path        = string
+    }))
+  }))
+  default  = {}
+  nullable = false
 }
 
 variable "geographic_restriction" {

@@ -100,13 +100,20 @@ resource "aws_cloudfront_distribution" "this" {
 
   dynamic "custom_error_response" {
     for_each = var.error_responses
+    iterator = response
 
     content {
-      error_code            = custom_error_response.key
-      error_caching_min_ttl = try(custom_error_response.value.cache_min_ttl, 10)
+      error_code            = response.key
+      error_caching_min_ttl = response.value.cache_min_ttl
 
-      response_code      = try(custom_error_response.value.custom_response_code, null)
-      response_page_path = try(custom_error_response.value.custom_response_path, null)
+      response_code = (response.value.custom_response != null
+        ? response.value.custom_response.status_code
+        : null
+      )
+      response_page_path = (response.value.custom_response != null
+        ? response.value.custom_response.path
+        : null
+      )
     }
   }
 
