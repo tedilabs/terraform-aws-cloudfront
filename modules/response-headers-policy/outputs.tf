@@ -30,9 +30,9 @@ output "custom_headers" {
 
 output "remove_headers" {
   description = "A set of HTTP headers to remove from the response headers."
-  value = toset(aws_cloudfront_response_headers_policy.this.remove_headers_config[0].items != null
+  value = (one(aws_cloudfront_response_headers_policy.this.remove_headers_config) != null
     ? [
-      for item in aws_cloudfront_response_headers_policy.this.remove_headers_config[0].items :
+      for item in one(aws_cloudfront_response_headers_policy.this.remove_headers_config[*].items) :
       item.header
     ]
     : []
