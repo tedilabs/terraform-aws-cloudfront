@@ -1,3 +1,8 @@
+output "arn" {
+  description = "The ARN of the CloudFront cache policy."
+  value       = aws_cloudfront_cache_policy.this.arn
+}
+
 output "id" {
   description = "The identifier for the CloudFront cache policy."
   value       = aws_cloudfront_cache_policy.this.id
