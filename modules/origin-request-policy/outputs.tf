@@ -1,3 +1,8 @@
+output "arn" {
+  description = "The ARN of the CloudFront origin request policy."
+  value       = aws_cloudfront_origin_request_policy.this.arn
+}
+
 output "id" {
   description = "The identifier for the CloudFront origin request policy."
   value       = aws_cloudfront_origin_request_policy.this.id
