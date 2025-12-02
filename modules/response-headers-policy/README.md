@@ -9,8 +9,8 @@ This module creates following resources.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.19 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.20 |
 
 ## Providers
 
@@ -49,6 +49,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the CloudFront response headers policy. |
 | <a name="output_cors"></a> [cors](#output\_cors) | A configuration for a set of HTTP response headers for CORS(Cross-Origin Resource Sharing). |
 | <a name="output_custom_headers"></a> [custom\_headers](#output\_custom\_headers) | A configuration for custom headers in the response headers. |
 | <a name="output_description"></a> [description](#output\_description) | The description of the response headers policy. |

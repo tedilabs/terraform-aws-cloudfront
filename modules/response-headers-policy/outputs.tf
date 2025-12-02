@@ -1,3 +1,8 @@
+output "arn" {
+  description = "The ARN of the CloudFront response headers policy."
+  value       = aws_cloudfront_response_headers_policy.this.arn
+}
+
 output "id" {
   description = "The identifier for the CloudFront response headers policy."
   value       = aws_cloudfront_response_headers_policy.this.id

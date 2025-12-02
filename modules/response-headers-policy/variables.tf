@@ -1,6 +1,7 @@
 variable "name" {
   description = "(Required) A unique name to identify the CloudFront Origin Request Policy."
   type        = string
+  nullable    = false
 }
 
 variable "description" {
