@@ -87,7 +87,8 @@ resource "aws_cloudfront_distribution" "this" {
   http_version    = local.http_version[var.http_version]
   is_ipv6_enabled = var.ipv6_enabled
 
-  web_acl_id = var.waf_web_acl
+  anycast_ip_list_id = var.anycast_static_ip_list
+  web_acl_id         = var.waf_web_acl
 
 
   ## Deployment
@@ -154,8 +155,9 @@ resource "aws_cloudfront_distribution" "this" {
         : null
       )
 
-      connection_attempts = s3.value.connection_attempts
-      connection_timeout  = s3.value.connection_timeout
+      connection_attempts         = s3.value.connection_attempts
+      connection_timeout          = s3.value.connection_timeout
+      response_completion_timeout = s3.value.response_completion_timeout
 
       dynamic "custom_header" {
         for_each = s3.value.custom_headers
@@ -200,8 +202,9 @@ resource "aws_cloudfront_distribution" "this" {
         : null
       )
 
-      connection_attempts = custom.value.connection_attempts
-      connection_timeout  = custom.value.connection_timeout
+      connection_attempts         = custom.value.connection_attempts
+      connection_timeout          = custom.value.connection_timeout
+      response_completion_timeout = custom.value.response_completion_timeout
 
       dynamic "custom_header" {
         for_each = custom.value.custom_headers
@@ -222,8 +225,10 @@ resource "aws_cloudfront_distribution" "this" {
       }
 
       custom_origin_config {
-        http_port              = custom.value.http_port
-        https_port             = custom.value.https_port
+        http_port       = custom.value.http_port
+        https_port      = custom.value.https_port
+        ip_address_type = lower(custom.value.ip_address_type)
+
         origin_protocol_policy = local.origin_protocol_policy[custom.value.protocol_policy]
         origin_ssl_protocols   = local.origin_ssl_security_policy[custom.value.ssl_security_policy]
 
@@ -272,6 +277,14 @@ resource "aws_cloudfront_distribution" "this" {
     viewer_protocol_policy = local.viewer_protocol_policy[var.default_behavior.viewer_protocol_policy]
     allowed_methods        = var.default_behavior.allowed_http_methods
     cached_methods         = var.default_behavior.cached_http_methods
+
+    dynamic "grpc_config" {
+      for_each = var.default_behavior.grpc_enabled ? ["go"] : []
+
+      content {
+        enabled = var.default_behavior.grpc_enabled
+      }
+    }
 
     # Policies
     cache_policy_id            = var.default_behavior.cache_policy
@@ -376,6 +389,14 @@ resource "aws_cloudfront_distribution" "this" {
       viewer_protocol_policy = local.viewer_protocol_policy[behavior.value.viewer_protocol_policy]
       allowed_methods        = behavior.value.allowed_http_methods
       cached_methods         = behavior.value.cached_http_methods
+
+      dynamic "grpc_config" {
+        for_each = behavior.value.grpc_enabled ? ["go"] : []
+
+        content {
+          enabled = behavior.value.grpc_enabled
+        }
+      }
 
       # Policies
       cache_policy_id            = behavior.value.cache_policy

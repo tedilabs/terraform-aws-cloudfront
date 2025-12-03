@@ -53,6 +53,11 @@ output "ipv6_enabled" {
   value       = aws_cloudfront_distribution.this.is_ipv6_enabled
 }
 
+output "anycast_static_ip_list" {
+  description = "The ID of anycast static IP address list for the distribution."
+  value       = aws_cloudfront_distribution.this.anycast_ip_list_id
+}
+
 output "waf_web_acl" {
   description = "The ARN of a web ACL on WAFv2 to associate with this distribution."
   value       = aws_cloudfront_distribution.this.web_acl_id
@@ -171,8 +176,9 @@ output "origins" {
       }
       origin_shield = one(origin.origin_shield[*])
 
-      connection_attempts = origin.connection_attempts
-      connection_timeout  = origin.connection_timeout
+      connection_attempts         = origin.connection_attempts
+      connection_timeout          = origin.connection_timeout
+      response_completion_timeout = origin.response_completion_timeout
     }
   }
 }

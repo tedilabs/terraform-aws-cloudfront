@@ -70,6 +70,13 @@ variable "ipv6_enabled" {
   nullable    = false
 }
 
+variable "anycast_static_ip_list" {
+  description = "(Optional) The ID of anycast static IP address list to associate with the distribution. You must request to AWS Support to use this feature. Only one of `anycast_static_ip_list`."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
 variable "waf_web_acl" {
   description = "(Optional) The ARN of a web ACL on WAFv2 to associate with this distribution. Example: `aws_wafv2_web_acl.example.arn`. The WAF Web ACL must exist in the WAF Global (CloudFront) region and the credentials configuring this argument must have `waf:GetWebACL` permissions assigned."
   type        = string
@@ -165,15 +172,15 @@ variable "ssl_certificate" {
 # INFO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/secure-connections-supported-viewer-protocols-ciphers.html
 variable "ssl_security_policy" {
   description = <<EOF
-  (Optional) The security policy determines the SSL or TLS protocol and the specific ciphers that CloudFront uses for HTTPS connections with viewers (clients). Only `SSLv3` or `TLSv1` can be specified if `ssl_support_method` is `VIP`. Can only be set if `ssl_certificate_provider` is not `CLOUDFRONT`. Defaults to `TLSv1`.
+  (Optional) The security policy determines the SSL or TLS protocol and the specific ciphers that CloudFront uses for HTTPS connections with viewers (clients). Valid values are `SSLv3`, `TLSv1`, `TLSv1_2016`, `TLSv1.1_2016`, `TLSv1.2_2018`, `TLSv1.2_2019`, `TLSv1.2_2021`, `TLSv1.2_2025`, `TLSv1.3_2025`. Only `SSLv3` or `TLSv1` can be specified if `ssl_support_method` is `VIP`. Can only be set if `ssl_certificate_provider` is not `CLOUDFRONT`. Defaults to `TLSv1`.
   EOF
   type        = string
   default     = "TLSv1"
   nullable    = false
 
   validation {
-    condition     = contains(["TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018", "TLSv1.2_2019", "TLSv1.2_2021"], var.ssl_security_policy)
-    error_message = "Valid values are `TLSv1`, `TLSv1_2016`, `TLSv1.1_2016`, `TLSv1.2_2018`, `TLSv1.2_2019`, `TLSv1.2_2021`."
+    condition     = contains(["SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018", "TLSv1.2_2019", "TLSv1.2_2021", "TLSv1.2_2025", "TLSv1.3_2025"], var.ssl_security_policy)
+    error_message = "Valid values are `SSLv3`, `TLSv1`, `TLSv1_2016`, `TLSv1.1_2016`, `TLSv1.2_2018`, `TLSv1.2_2019`, `TLSv1.2_2021`, `TLSv1.2_2025`, `TLSv1.3_2025`."
   }
 }
 
@@ -181,7 +188,7 @@ variable "ssl_support_method" {
   description = <<EOF
   (Optional) The method how you want CloudFront to serve HTTPS requests. Valid values are `VIP`, `SNI_ONLY`, `STATIC_IP`. Can only be set if `ssl_certificate_provider` is not `CLOUDFRONT`. Defaults to `SNI_ONLY`.
     `SNI_ONLY` - The distribution accepts HTTPS connections from only viewers that support SNI(Server Name Indication). This is recommended.
-    `VIP` - The distribution accepts HTTPS  connections  from  all viewers including those that dont support SNI. This is not recommended, and results in additional monthly charges from CloudFront.
+    `VIP` - The distribution accepts HTTPS connections from all viewers including those that dont support SNI. This is not recommended, and results in additional monthly charges from CloudFront.
     `STATIC_IP` - Do not specify this value unless your distribution has been enabled for this feature by the CloudFront team. If you have a usecase that requires static IP addresses for a distribution, contact CloudFront through the AWS Support Center.
   EOF
   type        = string
@@ -208,6 +215,7 @@ variable "s3_origins" {
       (Required) `region` - The AWS Region for Origin Shield. To specify a region. For example, specify the US East (Ohio) region as `us-east-2`.
     (Optional) `connection_attempts` - The number of times that CloudFront attempts to connect to the origin, from `1` to `3`. Defaults to `3`.
     (Optional) `connection_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `10`. Defaults to `10`.
+    (Optional) `response_completion_timeout` - A timeout that measures the total duration from when CloudFront begins fetching content from your origin until the last byte is received. This timeout encompasses the entire origin operation, including connection time, request transfer, and response transfer. The number of seconds CloudFront should wait for the complete origin response. Must be greater than or equal to the current `response_timeout` (minimum 30 seconds). Defaults to `0`, which means no timeout is set.
   EOF
   type = map(object({
     host = string
@@ -221,8 +229,9 @@ variable "s3_origins" {
       enabled = bool
       region  = string
     }))
-    connection_attempts = optional(number, 3)
-    connection_timeout  = optional(number, 10)
+    connection_attempts         = optional(number, 3)
+    connection_timeout          = optional(number, 10)
+    response_completion_timeout = optional(number, 0)
   }))
   default  = {}
   nullable = false
@@ -255,6 +264,7 @@ variable "custom_origins" {
     (Optional) `path` - The URL path to append to `host` which the origin domain name for origin requests. Enter the directory path, beginning with a slash (/). Do not add a slash (/) at the end of the path.
     (Optional) `http_port` - The HTTP port the custom origin listens on. Defaults to `80`.
     (Optional) `https_port` - The HTTPS port the custom origin listens on. Defaults to `443`.
+    (Optional) `ip_address_type` - The IP address type that CloudFront uses when connecting to the origin. Valid values are `IPV4`, `IPV6`, `DUALSTACK`. Defaults to `IPV4`.
     (Optional) `origin_access` - The configuration of origin access for the origin. `origin_access` block as defined below.
       (Optional) `type` - The type of origin access. Valid values are `CONTROL` and `NONE`. Defaults to `NONE`.
       (Optional) `id` - The ID of origin access control if `type` is `CONTROL`.
@@ -267,13 +277,15 @@ variable "custom_origins" {
     (Optional) `connection_attempts` - The number of times that CloudFront attempts to connect to the origin, from `1` to `3`. Defaults to `3`.
     (Optional) `connection_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `10`. Defaults to `10`.
     (Optional) `keepalive_timeout` - The number of seconds that CloudFront maintains an idle connection with the origin, from `1` to `60`. But, the maximum can be changed arbitrarily by AWS Support to a much higher value. Defaults to `5`.
-    (Optional) `response_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `60`. Defaults to `30`.
+    (Optional) `response_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `120`. Defaults to `30`.
+    (Optional) `response_completion_timeout` - A timeout that measures the total duration from when CloudFront begins fetching content from your origin until the last byte is received. This timeout encompasses the entire origin operation, including connection time, request transfer, and response transfer. The number of seconds CloudFront should wait for the complete origin response. Must be greater than or equal to the current `response_timeout` (minimum 30 seconds). Defaults to `0`, which means no timeout is set.
   EOF
   type = map(object({
-    host       = string
-    path       = optional(string)
-    http_port  = optional(number, 80)
-    https_port = optional(number, 443)
+    host            = string
+    path            = optional(string)
+    http_port       = optional(number, 80)
+    https_port      = optional(number, 443)
+    ip_address_type = optional(string, "IPV4")
     origin_access = optional(object({
       type = optional(string, "NONE")
       id   = optional(string)
@@ -285,10 +297,11 @@ variable "custom_origins" {
       enabled = bool
       region  = string
     }))
-    connection_attempts = optional(number, 3)
-    connection_timeout  = optional(number, 10)
-    keepalive_timeout   = optional(number, 5)
-    response_timeout    = optional(number, 30)
+    connection_attempts         = optional(number, 3)
+    connection_timeout          = optional(number, 10)
+    keepalive_timeout           = optional(number, 5)
+    response_timeout            = optional(number, 30)
+    response_completion_timeout = optional(number, 0)
   }))
   default  = {}
   nullable = false
@@ -325,6 +338,14 @@ variable "custom_origins" {
   validation {
     condition = alltrue([
       for origin in var.custom_origins :
+      contains(["IPV4", "IPV6", "DUALSTACK"], origin.ip_address_type)
+    ])
+    error_message = "Valid values for `ip_address_type` are `IPV4`, `IPV6`, and `DUALSTACK`."
+  }
+
+  validation {
+    condition = alltrue([
+      for origin in var.custom_origins :
       contains(["CONTROL", "NONE"], origin.origin_access.type)
     ])
     error_message = "Valid values for `origin_access.type` are `CONTROL` and `NONE`."
@@ -344,6 +365,14 @@ variable "custom_origins" {
       contains(["SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"], origin.ssl_security_policy)
     ])
     error_message = "Valid values for `ssl_security_policy` are `SSLv3`, `TLSv1`, `TLSv1.1`, and `TLSv1.2`."
+  }
+
+  validation {
+    condition = alltrue([
+      for origin in var.custom_origins :
+      origin.response_completion_timeout >= origin.response_timeout || origin.response_completion_timeout == 0
+    ])
+    error_message = "The value of `response_completion_timeout` must be greater than or equal to the value of `response_timeout` when `response_completion_timeout` is set."
   }
 }
 
@@ -393,6 +422,7 @@ variable "default_behavior" {
     (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
     (Optional) `allowed_http_methods` - A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` , `["GET", "HEAD", "OPTIONS"]`, or `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`. Defaults to `["GET", "HEAD"]`.
     (Optional) `cached_http_methods` - A list of HTTP methods to cache. Controls whether CloudFront caches the response to requests using the specified HTTP methods. Valid values are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`. Defaults to `["GET", "HEAD"]`.
+    (Optional) `grpc_enabled` - Whether to allow gRPC requests. To enable gRPC for the distribution, must allow the `POST` http method and allow the HTTP/2 version. Defaults to `false`.
     (Optional) `cache_policy` - The ID of the cache policy that you want to attach to the default behavior of the distribution.
     (Optional) `origin_request_policy` - The ID of the origin request policy that you want to attach to the default behavior of the distribution.
     (Optional) `response_headers_policy` - The ID of the response headers policy that you want to attach to the default behavior of the distribution.
@@ -435,6 +465,7 @@ variable "default_behavior" {
     viewer_protocol_policy = optional(string, "REDIRECT_TO_HTTPS")
     allowed_http_methods   = optional(set(string), ["GET", "HEAD"])
     cached_http_methods    = optional(set(string), ["GET", "HEAD"])
+    grpc_enabled           = optional(bool, false)
 
     cache_policy            = optional(string)
     origin_request_policy   = optional(string)
@@ -490,6 +521,17 @@ variable "default_behavior" {
   }
 
   validation {
+    condition = anytrue([
+      !var.default_behavior.grpc_enabled,
+      (var.default_behavior.grpc_enabled
+        && contains(var.default_behavior.allowed_http_methods, "POST")
+        && contains(["HTTP2", "HTTP2AND3"], var.http_version)
+      )
+    ])
+    error_message = "To enable gRPC, you must allow the `POST` http method and allow the HTTP/2 version."
+  }
+
+  validation {
     condition = alltrue([
       for event in keys(var.default_behavior.function_associations) :
       contains(["VIEWER_REQUEST", "ORIGIN_REQUEST", "ORIGIN_RESPONSE", "VIEWER_RESPONSE"], event)
@@ -533,6 +575,7 @@ variable "ordered_behaviors" {
     (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
     (Optional) `allowed_http_methods` - A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` , `["GET", "HEAD", "OPTIONS"]`, or `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`. Defaults to `["GET", "HEAD"]`.
     (Optional) `cached_http_methods` - A list of HTTP methods to cache. Controls whether CloudFront caches the response to requests using the specified HTTP methods. Valid values are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`. Defaults to `["GET", "HEAD"]`.
+    (Optional) `grpc_enabled` - Whether to allow gRPC requests. To enable gRPC for the distribution, must allow the `POST` http method and allow the HTTP/2 version. Defaults to `false`.
     (Optional) `cache_policy` - The ID of the cache policy that you want to attach to the behavior of the distribution.
     (Optional) `origin_request_policy` - The ID of the origin request policy that you want to attach to the behavior of the distribution.
     (Optional) `response_headers_policy` - The ID of the response headers policy that you want to attach to the behavior of the distribution.
@@ -568,6 +611,7 @@ variable "ordered_behaviors" {
     viewer_protocol_policy = optional(string, "REDIRECT_TO_HTTPS")
     allowed_http_methods   = optional(set(string), ["GET", "HEAD"])
     cached_http_methods    = optional(set(string), ["GET", "HEAD"])
+    grpc_enabled           = optional(bool, false)
 
     cache_policy            = optional(string)
     origin_request_policy   = optional(string)
@@ -638,6 +682,20 @@ variable "ordered_behaviors" {
     error_message = <<EOF
     Valid values for `cached_http_methods` are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`.
     EOF
+  }
+
+  validation {
+    condition = alltrue([
+      for behavior in var.ordered_behaviors :
+      anytrue([
+        !behavior.grpc_enabled,
+        (behavior.grpc_enabled
+          && contains(behavior.allowed_http_methods, "POST")
+          && contains(["HTTP2", "HTTP2AND3"], var.http_version)
+        )
+      ])
+    ])
+    error_message = "To enable gRPC, you must allow the `POST` http method and allow the HTTP/2 version."
   }
 
   validation {
