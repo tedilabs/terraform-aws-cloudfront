@@ -187,6 +187,47 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
+  # VPC Origins
+  dynamic "origin" {
+    for_each = var.vpc_origins
+    iterator = vpc
+
+    content {
+      origin_id   = vpc.key
+      domain_name = vpc.value.host
+      origin_path = vpc.value.path
+
+      connection_attempts         = vpc.value.connection_attempts
+      connection_timeout          = vpc.value.connection_timeout
+      response_completion_timeout = vpc.value.response_completion_timeout
+
+      dynamic "custom_header" {
+        for_each = vpc.value.custom_headers
+
+        content {
+          name  = custom_header.key
+          value = custom_header.value
+        }
+      }
+
+      dynamic "origin_shield" {
+        for_each = vpc.value.origin_shield != null ? [vpc.value.origin_shield] : []
+
+        content {
+          enabled              = origin_shield.value.enabled
+          origin_shield_region = origin_shield.value.region
+        }
+      }
+
+      vpc_origin_config {
+        vpc_origin_id = vpc.value.vpc_origin
+
+        origin_keepalive_timeout = vpc.value.keepalive_timeout
+        origin_read_timeout      = vpc.value.response_timeout
+      }
+    }
+  }
+
   # Custom Origins
   dynamic "origin" {
     for_each = var.custom_origins

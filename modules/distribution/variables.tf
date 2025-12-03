@@ -257,6 +257,61 @@ variable "s3_origins" {
   }
 }
 
+variable "vpc_origins" {
+  description = <<EOF
+  (Optional) A configuration for VPC origins of the distribution. Each key defines a name of each vpc origin. Each value of `vpc_origins` as defined below.
+    (Required) `vpc_origin` - The ID of VPC Origin.
+    (Required) `host` - The DNS domain name of either the web site of your vpc origin.
+    (Optional) `path` - The URL path to append to `host` which the origin domain name for origin requests. Enter the directory path, beginning with a slash (/). Do not add a slash (/) at the end of the path.
+    (Optional) `custom_headers` - A map of custom HTTP headers to include in all requests to the origin. Each key/value is mapping to HTTP header `name`/`value`.
+    (Optional) `origin_shield` - Origin Shield is an additional caching layer that can help reduce the load on your origin and help protect its availability. `origin_shield` block as defined below.
+      (Required) `enabled` - Whether to enable Origin Shield. Defaults to `false`.
+      (Required) `region` - The AWS Region for Origin Shield. To specify a region. For example, specify the US East (Ohio) region as `us-east-2`.
+    (Optional) `connection_attempts` - The number of times that CloudFront attempts to connect to the origin, from `1` to `3`. Defaults to `3`.
+    (Optional) `connection_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `10`. Defaults to `10`.
+    (Optional) `keepalive_timeout` - The number of seconds that CloudFront maintains an idle connection with the origin, from `1` to `120`. But, the maximum can be changed arbitrarily by AWS Support to a much higher value. Defaults to `5`.
+    (Optional) `response_timeout` - The number of seconds that CloudFront waits for a response from the origin, from `1` to `120`. Defaults to `30`.
+    (Optional) `response_completion_timeout` - A timeout that measures the total duration from when CloudFront begins fetching content from your origin until the last byte is received. This timeout encompasses the entire origin operation, including connection time, request transfer, and response transfer. The number of seconds CloudFront should wait for the complete origin response. Must be greater than or equal to the current `response_timeout` (minimum 30 seconds). Defaults to `0`, which means no timeout is set.
+  EOF
+  type = map(object({
+    vpc_origin     = string
+    host           = string
+    path           = optional(string)
+    custom_headers = optional(map(string), {})
+    origin_shield = optional(object({
+      enabled = bool
+      region  = string
+    }))
+    connection_attempts         = optional(number, 3)
+    connection_timeout          = optional(number, 10)
+    keepalive_timeout           = optional(number, 5)
+    response_timeout            = optional(number, 30)
+    response_completion_timeout = optional(number, 0)
+  }))
+  default  = {}
+  nullable = false
+
+  validation {
+    condition = alltrue([
+      for origin in var.vpc_origins :
+      alltrue([
+        substr(origin.path, 0, 1) == "/",
+        substr(origin.path, -1, 0) != "/"
+      ])
+      if origin.path != null
+    ])
+    error_message = "The value for `path` must begins with a slash and do not end with a slash."
+  }
+
+  validation {
+    condition = alltrue([
+      for origin in var.vpc_origins :
+      origin.response_completion_timeout >= origin.response_timeout || origin.response_completion_timeout == 0
+    ])
+    error_message = "The value of `response_completion_timeout` must be greater than or equal to the value of `response_timeout` when `response_completion_timeout` is set."
+  }
+}
+
 variable "custom_origins" {
   description = <<EOF
   (Optional) A configuration for custom origins of the distribution. Each key defines a name of each custom origin. Each value of `custom_origins` as defined below.
