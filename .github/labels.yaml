@@ -58,3 +58,6 @@
 - color: "fbca04"
   description: "This issue or pull request is related to response-headers-policy module."
   name: ":floppy_disk: response-headers-policy"
+- color: "fbca04"
+  description: "This issue or pull request is related to vpc-origin module."
+  name: ":floppy_disk: vpc-origin"

@@ -12,6 +12,7 @@ Terraform module which creates CloudFront related resources on AWS.
 - [origin-access-control](./modules/origin-access-control)
 - [origin-request-policy](./modules/origin-request-policy)
 - [response-headers-policy](./modules/response-headers-policy)
+- [vpc-origin](./modules/vpc-origin)
 
 
 ## Target AWS Services
@@ -22,6 +23,10 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
   - Distribution
   - Key-value Store
   - Real-time Log Configuration (Comming soon!)
+  - Origins
+    - Custom Origin
+    - S3 Origin
+    - VPC Origin
   - Origin Access
     - Origin Access Control
   - Policies

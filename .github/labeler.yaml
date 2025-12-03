@@ -28,3 +28,8 @@
 - changed-files:
   - any-glob-to-any-file:
     - modules/response-headers-policy/**/*
+
+":floppy_disk: vpc-origin":
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/vpc-origin/**/*
