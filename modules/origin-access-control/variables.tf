@@ -12,14 +12,13 @@ variable "description" {
 }
 
 variable "origin_type" {
-  description = "(Optional) The type of origin that this origin access control is for. Valid values are `S3` and `MEDIASTORE`. Defaults to `S3`."
+  description = "(Required) The type of origin that this origin access control is for. Valid values are `LAMBDA`, `MEDIAPACKAGE_V2`, `MEDIASTORE` and `S3`."
   type        = string
-  default     = "S3"
   nullable    = false
 
   validation {
-    condition     = contains(["S3", "MEDIASTORE"], var.origin_type)
-    error_message = "Valid values for `origin_type` are `S3` and `MEDIASTORE`."
+    condition     = contains(["LAMBDA", "MEDIAPACKAGE_V2", "MEDIASTORE", "S3"], var.origin_type)
+    error_message = "Valid values for `origin_type` are `LAMBDA`, `MEDIAPACKAGE_V2`, `MEDIASTORE` and `S3`."
   }
 }
 

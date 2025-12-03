@@ -1,3 +1,8 @@
+output "arn" {
+  description = "The ARN of the origin access control."
+  value       = aws_cloudfront_origin_access_control.this.arn
+}
+
 output "id" {
   description = "The ID of the origin access control."
   value       = aws_cloudfront_origin_access_control.this.id
@@ -20,7 +25,10 @@ output "description" {
 
 output "origin_type" {
   description = "The type of origin that this origin access control is for."
-  value       = upper(aws_cloudfront_origin_access_control.this.origin_access_control_origin_type)
+  value = {
+    for k, v in local.origin_types :
+    v => k
+  }[aws_cloudfront_origin_access_control.this.origin_access_control_origin_type]
 }
 
 output "signing_behavior" {
