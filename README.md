@@ -8,6 +8,7 @@ Terraform module which creates CloudFront related resources on AWS.
 
 - [cache-policy](./modules/cache-policy)
 - [distribution](./modules/distribution)
+- [function](./modules/function)
 - [key-value-store](./modules/key-value-store)
 - [origin-access-control](./modules/origin-access-control)
 - [origin-request-policy](./modules/origin-request-policy)
@@ -21,6 +22,8 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
 
 - **AWS CloudFront**
   - Distribution
+  - Connection Function
+  - Function
   - Key-value Store
   - Real-time Log Configuration (Comming soon!)
   - Origins

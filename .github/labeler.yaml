@@ -9,6 +9,11 @@
   - any-glob-to-any-file:
     - modules/cache-policy/**/*
 
+":floppy_disk: function":
+- changed-files:
+  - any-glob-to-any-file:
+    - modules/function/**/*
+
 ":floppy_disk: key-value-store":
 - changed-files:
   - any-glob-to-any-file:
