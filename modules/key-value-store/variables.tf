@@ -20,7 +20,7 @@ variable "exclusive" {
 
 variable "items" {
   description = "(Optional) A map of key-value pairs to store in the CloudFront Key-Value Store. The key is the key name and the value is the value to store. Defaults to `{}`."
-  type        = any
+  type        = map(string)
   default     = {}
   nullable    = false
 }

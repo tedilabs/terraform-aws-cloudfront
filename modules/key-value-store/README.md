@@ -12,13 +12,13 @@ This module creates following resources.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.20 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.37 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.10.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.35.0 |
 
 ## Modules
 
@@ -39,7 +39,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | (Required) Unique name of the CloudFront Key-Value Store. | `string` | n/a | yes |
 | <a name="input_description"></a> [description](#input\_description) | (Optional) The description of the CloudFront Key-Value Store. | `string` | `"Managed by Terraform."` | no |
 | <a name="input_exclusive"></a> [exclusive](#input\_exclusive) | (Optional) Whether to manage all keys exclusively. If `true`, all keys not defined in the `keys` variable will be removed from the key-value store. If `false`, keys are managed individually and can coexist with keys managed outside of Terraform. Defaults to `false`. | `bool` | `false` | no |
-| <a name="input_items"></a> [items](#input\_items) | (Optional) A map of key-value pairs to store in the CloudFront Key-Value Store. The key is the key name and the value is the value to store. Defaults to `{}`. | `any` | `{}` | no |
+| <a name="input_items"></a> [items](#input\_items) | (Optional) A map of key-value pairs to store in the CloudFront Key-Value Store. The key is the key name and the value is the value to store. Defaults to `{}`. | `map(string)` | `{}` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | (Optional) How long to wait for the CloudFront Key-Value Store to be created. | <pre>object({<br/>    create = optional(string, "30m")<br/>  })</pre> | `{}` | no |
 
 ## Outputs

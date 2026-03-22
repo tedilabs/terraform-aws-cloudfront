@@ -7,13 +7,6 @@ locals {
   }
 }
 
-locals {
-  items = {
-    for k, v in var.items :
-    k => jsonencode(v)
-  }
-}
-
 
 ###################################################
 # CloudFront Key-Value Store
@@ -34,7 +27,7 @@ resource "aws_cloudfront_key_value_store" "this" {
 ###################################################
 
 resource "aws_cloudfrontkeyvaluestore_key" "this" {
-  for_each = var.exclusive ? {} : local.items
+  for_each = var.exclusive ? {} : var.items
 
   key_value_store_arn = aws_cloudfront_key_value_store.this.arn
 
@@ -48,7 +41,7 @@ resource "aws_cloudfrontkeyvaluestore_keys_exclusive" "this" {
   key_value_store_arn = aws_cloudfront_key_value_store.this.arn
 
   dynamic "resource_key_value_pair" {
-    for_each = local.items
+    for_each = var.items
     iterator = item
 
     content {

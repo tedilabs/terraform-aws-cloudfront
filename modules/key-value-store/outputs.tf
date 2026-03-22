@@ -30,7 +30,7 @@ output "exclusive" {
 
 output "items" {
   description = "The map of key-value pairs stored in the CloudFront Key-Value Store."
-  value       = local.items
+  value       = var.items
 }
 
 output "updated_at" {
