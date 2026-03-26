@@ -134,8 +134,8 @@ resource "aws_cloudfront_distribution" "this" {
     acm_certificate_arn            = var.ssl_certificate_provider == "ACM" ? var.ssl_certificate : null
     iam_certificate_id             = var.ssl_certificate_provider == "IAM" ? var.ssl_certificate : null
 
-    minimum_protocol_version = var.ssl_security_policy
-    ssl_support_method       = local.ssl_support_method[var.ssl_support_method]
+    minimum_protocol_version = var.ssl_certificate_provider != "CLOUDFRONT" ? var.ssl_security_policy : null
+    ssl_support_method       = var.ssl_certificate_provider != "CLOUDFRONT" ? local.ssl_support_method[var.ssl_support_method] : null
   }
 
 
