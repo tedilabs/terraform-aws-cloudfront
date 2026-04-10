@@ -9,6 +9,7 @@ Terraform module which creates CloudFront related resources on AWS.
 - [cache-policy](./modules/cache-policy)
 - [distribution](./modules/distribution)
 - [function](./modules/function)
+- [key-group](./modules/key-group)
 - [key-value-store](./modules/key-value-store)
 - [origin-access-control](./modules/origin-access-control)
 - [origin-request-policy](./modules/origin-request-policy)
