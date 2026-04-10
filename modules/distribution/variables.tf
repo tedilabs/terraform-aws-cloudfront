@@ -472,6 +472,7 @@ variable "default_behavior" {
     (Required) `target_origin` - The ID of existing origin or origin group that you want CloudFront to route requests to when a request matches the path pattern for the default behavior.
     (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
     (Optional) `smooth_streaming_enabled` - Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`.
+    (Optional) `trusted_key_groups` - A set of key group IDs that CloudFront can use to validate signed URLs or signed cookies.
     (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, the distribution must be configured to always use HTTPS, and to accept HTTP POST and PUT requests from viewers.
     (Optional) `realtime_log_configuration` -The ARN of real-time log configuration for the default behavior. Real-time logs are delivered to the data stream in Amazon Kinesis Data Streams.
     (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
@@ -514,6 +515,7 @@ variable "default_behavior" {
     compression_enabled      = optional(bool, true)
     smooth_streaming_enabled = optional(bool, false)
 
+    trusted_key_groups                   = optional(set(string), [])
     field_level_encryption_configuration = optional(string)
     realtime_log_configuration           = optional(string)
 
@@ -625,6 +627,7 @@ variable "ordered_behaviors" {
     (Required) `target_origin` - The ID of existing origin or origin group that you want CloudFront to route requests to when a request matches the path pattern for the behavior.
     (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
     (Optional) `smooth_streaming_enabled` - Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`.
+    (Optional) `trusted_key_groups` - A set of key group IDs that CloudFront can use to validate signed URLs or signed cookies.
     (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, the distribution must be configured to always use HTTPS, and to accept HTTP POST and PUT requests from viewers.
     (Optional) `realtime_log_configuration` -The ARN of real-time log configuration for the behavior. Real-time logs are delivered to the data stream in Amazon Kinesis Data Streams.
     (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
@@ -660,6 +663,7 @@ variable "ordered_behaviors" {
     compression_enabled      = optional(bool, true)
     smooth_streaming_enabled = optional(bool, false)
 
+    trusted_key_groups                   = optional(set(string), [])
     field_level_encryption_configuration = optional(string)
     realtime_log_configuration           = optional(string)
 

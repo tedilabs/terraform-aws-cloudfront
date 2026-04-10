@@ -72,9 +72,6 @@ locals {
 # - `ordered_cache_behavior.min_ttl`
 # - `ordered_cache_behavior.default_ttl`
 # - `ordered_cache_behavior.max_ttl`
-# TODO
-# - `default_cache_behavior.trusted_key_groups`
-# - `ordered_cache_behavior.trusted_key_groups`
 resource "aws_cloudfront_distribution" "this" {
   aliases = var.aliases
   comment = var.description
@@ -308,6 +305,7 @@ resource "aws_cloudfront_distribution" "this" {
     compress         = var.default_behavior.compression_enabled
     smooth_streaming = var.default_behavior.smooth_streaming_enabled
 
+    trusted_key_groups = var.default_behavior.trusted_key_groups
     field_level_encryption_id = (var.default_behavior.viewer_protocol_policy == "HTTPS_ONLY" && contains(var.default_behavior.allowed_http_methods, "POST") && contains(var.default_behavior.allowed_http_methods, "PUT")
       ? var.default_behavior.field_level_encryption_configuration
       : null
@@ -420,6 +418,7 @@ resource "aws_cloudfront_distribution" "this" {
       compress         = behavior.value.compression_enabled
       smooth_streaming = behavior.value.smooth_streaming_enabled
 
+      trusted_key_groups = behavior.value.trusted_key_groups
       field_level_encryption_id = (behavior.value.viewer_protocol_policy == "HTTPS_ONLY" && contains(behavior.value.allowed_http_methods, "POST") && contains(behavior.value.allowed_http_methods, "PUT")
         ? behavior.value.field_level_encryption_configuration
         : null

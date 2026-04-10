@@ -209,6 +209,7 @@ output "default_behavior" {
     compression_enabled      = aws_cloudfront_distribution.this.default_cache_behavior[0].compress
     smooth_streaming_enabled = aws_cloudfront_distribution.this.default_cache_behavior[0].smooth_streaming
 
+    trusted_key_groups                   = aws_cloudfront_distribution.this.default_cache_behavior[0].trusted_key_groups
     field_level_encryption_configuration = aws_cloudfront_distribution.this.default_cache_behavior[0].field_level_encryption_id
     realtime_log_configuration           = aws_cloudfront_distribution.this.default_cache_behavior[0].realtime_log_config_arn
 
@@ -279,12 +280,11 @@ output "monitoring" {
   }
 }
 
-## TODO: implement
-# output "trusted_key_groups" {
-#   description = "test"
-#   value       = aws_cloudfront_distribution.this.trusted_key_groups
-# }
-#
+output "trusted_key_groups" {
+  description = "The configurations for active trusted signers, if the distribution is set up to serve private content with signed URLs."
+  value       = aws_cloudfront_distribution.this.trusted_key_groups
+}
+
 
 output "resource_group" {
   description = "The resource group created to manage resources in this module."
