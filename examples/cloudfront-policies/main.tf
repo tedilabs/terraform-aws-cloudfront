@@ -115,10 +115,6 @@ module "response_headers_policy" {
     enabled  = true
     override = true
 
-    filtering_enabled = true
-    block             = true
-    report            = ""
-
     max_age            = 60 * 60 * 24 * 365
     include_subdomains = true
     preload            = false
