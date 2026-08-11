@@ -223,7 +223,7 @@ variable "s3_origins" {
     origin_access = optional(object({
       type = optional(string, "CONTROL")
       id   = optional(string)
-    }))
+    }), {})
     custom_headers = optional(map(string), {})
     origin_shield = optional(object({
       enabled = bool
@@ -344,7 +344,7 @@ variable "custom_origins" {
     origin_access = optional(object({
       type = optional(string, "NONE")
       id   = optional(string)
-    }))
+    }), {})
     protocol_policy     = optional(string, "MATCH_VIEWER")
     ssl_security_policy = optional(string, "TLSv1.1")
     custom_headers      = optional(map(string), {})
