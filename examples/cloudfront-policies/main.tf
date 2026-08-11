@@ -10,7 +10,7 @@ provider "aws" {
 module "cache_policy" {
   source = "../../modules/cache-policy"
   # source  = "tedilabs/cloudfront/aws//modules/cache-policy"
-  # version = "~> 0.2.0"
+  # version = "~> 0.7.0"
 
   name        = "example-cache-policy"
   description = "Managed by Terraform."
@@ -36,7 +36,7 @@ module "cache_policy" {
 module "origin_request_policy" {
   source = "../../modules/origin-request-policy"
   # source  = "tedilabs/cloudfront/aws//modules/origin-request-policy"
-  # version = "~> 0.2.0"
+  # version = "~> 0.7.0"
 
   name        = "example-origin-request-policy"
   description = "Managed by Terraform."
@@ -56,7 +56,7 @@ module "origin_request_policy" {
 module "response_headers_policy" {
   source = "../../modules/response-headers-policy"
   # source  = "tedilabs/cloudfront/aws//modules/response-headers-policy"
-  # version = "~> 0.2.0"
+  # version = "~> 0.7.0"
 
   name        = "example-response-headers-policy"
   description = "Managed by Terraform."
