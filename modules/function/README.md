@@ -9,33 +9,33 @@ This module creates following resources.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.35 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.35.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.35 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_resource_group"></a> [resource\_group](#module\_resource\_group) | tedilabs/misc/aws//modules/resource-group | ~> 0.12.0 |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudfront_connection_function.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_connection_function) | resource |
 | [aws_cloudfront_function.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_function) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_code"></a> [code](#input\_code) | (Required) The source code of the function. Maximum length is 40960 characters for CONNECTION functions. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | (Required) A unique name for the CloudFront Function. | `string` | n/a | yes |
 | <a name="input_runtime"></a> [runtime](#input\_runtime) | (Required) The identifier of the function's runtime. Valid values are `cloudfront-js-1.0` and `cloudfront-js-2.0`. | `string` | n/a | yes |
@@ -50,7 +50,7 @@ This module creates following resources.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the CloudFront Function. |
 | <a name="output_description"></a> [description](#output\_description) | The comment describing the CloudFront function. |
 | <a name="output_etag"></a> [etag](#output\_etag) | The ETag hash of the function. This is the value for the DEVELOPMENT stage of the function. |

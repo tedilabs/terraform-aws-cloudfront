@@ -8,15 +8,15 @@ This module creates following resources.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.20 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.23.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.20 |
 
 ## Modules
 
@@ -25,13 +25,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudfront_cache_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_cache_policy) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_name"></a> [name](#input\_name) | (Required) A unique name to identify the CloudFront Cache Policy. | `string` | n/a | yes |
 | <a name="input_cache_keys_in_cookies"></a> [cache\_keys\_in\_cookies](#input\_cache\_keys\_in\_cookies) | (Optional) A configuration for specifying which cookies to use as cache key in viewer requests. The values in the cache key are automatically forwarded in requests to the origin. `cache_keys_in_cookies` as defined below.<br/>    (Required) `behavior` - Determine whether any cookies in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`, `BLACKLIST`, `ALL`. Defaults to `NONE`.<br/>    (Optional) `items` - A list of cookie names. It only takes effect when `behavior` is `WHITELIST` or `BLACKLIST`. | <pre>object({<br/>    behavior = optional(string, "NONE")<br/>    items    = optional(set(string), [])<br/>  })</pre> | `{}` | no |
 | <a name="input_cache_keys_in_headers"></a> [cache\_keys\_in\_headers](#input\_cache\_keys\_in\_headers) | (Optional) A configuration for specifying which headers to use as cache key in viewer requests. The values in the cache key are automatically forwarded in requests to the origin. `cache_keys_in_headers` as defined below.<br/>    (Required) `behavior` - Determine whether any headers in viewer requests are included in the cache key and automatically included in requests that CloudFront sends to the origin. Valid values are `NONE`, `WHITELIST`. Defaults to `NONE`.<br/>    (Optional) `items` - A list of header names. It only takes effect when `behavior` is `WHITELIST`. | <pre>object({<br/>    behavior = optional(string, "NONE")<br/>    items    = optional(set(string), [])<br/>  })</pre> | `{}` | no |
@@ -45,7 +45,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the CloudFront cache policy. |
 | <a name="output_cache_keys_in_cookies"></a> [cache\_keys\_in\_cookies](#output\_cache\_keys\_in\_cookies) | A configuration for specifying which cookies to use as cache key in viewer requests. |
 | <a name="output_cache_keys_in_headers"></a> [cache\_keys\_in\_headers](#output\_cache\_keys\_in\_headers) | A configuration for specifying which headers to use as cache key in viewer requests. |
