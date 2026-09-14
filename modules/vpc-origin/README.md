@@ -8,33 +8,33 @@ This module creates following resources.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.20 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.24.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.20 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_resource_group"></a> [resource\_group](#module\_resource\_group) | tedilabs/misc/aws//modules/resource-group | ~> 0.12.0 |
-| <a name="module_share"></a> [share](#module\_share) | tedilabs/organization/aws//modules/ram-share | ~> 0.5.0 |
+| <a name="module_share"></a> [share](#module\_share) | tedilabs/organization/aws//modules/ram-share | ~> 0.7.0 |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudfront_vpc_origin.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_vpc_origin) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | (Required) The ARN of the VPC origin endpoint to associate with the CloudFront VPC Origin. The VPC origin endpoint must be an Application Load Balancer (ALB), Network Load Balancer (NLB), or EC2 instance in the same AWS Region as the CloudFront distribution. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | (Required) The name of the CloudFront VPC Origin. | `string` | n/a | yes |
 | <a name="input_http_port"></a> [http\_port](#input\_http\_port) | (Optional) The HTTP port for the CloudFront VPC origin endpoint configuration. Defaults to `80`. | `number` | `80` | no |
@@ -49,7 +49,7 @@ This module creates following resources.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the CloudFront VPC Origin. |
 | <a name="output_endpoint"></a> [endpoint](#output\_endpoint) | The ARN of the CloudFront VPC Origin endpoint. |
 | <a name="output_etag"></a> [etag](#output\_etag) | The ETag of the CloudFront VPC Origin. |

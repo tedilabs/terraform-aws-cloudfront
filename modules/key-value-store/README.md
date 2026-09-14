@@ -10,15 +10,15 @@ This module creates following resources.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.37 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.35.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.37 |
 
 ## Modules
 
@@ -27,7 +27,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudfront_key_value_store.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_key_value_store) | resource |
 | [aws_cloudfrontkeyvaluestore_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfrontkeyvaluestore_key) | resource |
 | [aws_cloudfrontkeyvaluestore_keys_exclusive.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfrontkeyvaluestore_keys_exclusive) | resource |
@@ -35,7 +35,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_name"></a> [name](#input\_name) | (Required) Unique name of the CloudFront Key-Value Store. | `string` | n/a | yes |
 | <a name="input_description"></a> [description](#input\_description) | (Optional) The description of the CloudFront Key-Value Store. | `string` | `"Managed by Terraform."` | no |
 | <a name="input_exclusive"></a> [exclusive](#input\_exclusive) | (Optional) Whether to manage all keys exclusively. If `true`, all keys not defined in the `keys` variable will be removed from the key-value store. If `false`, keys are managed individually and can coexist with keys managed outside of Terraform. Defaults to `false`. | `bool` | `false` | no |
@@ -45,7 +45,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the CloudFront Key-Value Store. |
 | <a name="output_description"></a> [description](#output\_description) | The description of the CloudFront Key-Value Store. |
 | <a name="output_etag"></a> [etag](#output\_etag) | The ETag of the CloudFront Key-Value Store. |

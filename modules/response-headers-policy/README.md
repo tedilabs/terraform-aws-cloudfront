@@ -8,15 +8,15 @@ This module creates following resources.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.20 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.10.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.20 |
 
 ## Modules
 
@@ -25,13 +25,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudfront_response_headers_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_response_headers_policy) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_name"></a> [name](#input\_name) | (Required) A unique name to identify the CloudFront Origin Request Policy. | `string` | n/a | yes |
 | <a name="input_content_security_policy_header"></a> [content\_security\_policy\_header](#input\_content\_security\_policy\_header) | (Optional) A configuration for `Content-Security-Policy` header in HTTP responses sent from CloudFront. The HTTP `Content-Security-Policy` response header allows web site administrators to control resources the user agent is allowed to load for a given page. With a few exceptions, policies mostly involve specifying server origins and script endpoints. This helps guard against cross-site scripting attacks. `content_security_policy_header` as defined below.<br/>    (Optional) `enabled` - Whether to enable `Content-Security-Policy` response header. Defaults to `false`.<br/>    (Optional) `override` - Whether CloudFront overrides the `Content-Security-Policy` response header with the header received from the origin. Defaults to `true`.<br/>    (Optional) `value` - The value for the `Content-Security-Policy` HTTP response header. The `Content-Security-Policy` header value is limited to 1783 characters. | <pre>object({<br/>    enabled  = optional(bool, false)<br/>    override = optional(bool, true)<br/>    value    = optional(string, "")<br/>  })</pre> | `{}` | no |
 | <a name="input_content_type_options_header"></a> [content\_type\_options\_header](#input\_content\_type\_options\_header) | (Optional) A configuration for `X-Content-Type-Options` header in HTTP responses sent from CloudFront. The `X-Content-Type-Options` response HTTP header is a marker used by the server to indicate that the MIME types advertised in the `Content-Type` headers should be followed and not be changed. The header allows you to avoid MIME type sniffing by saying that the MIME types are deliberately configured. `content_type_options_header` as defined below.<br/>    (Optional) `enabled` - Whether to enable `X-Content-Type-Options` response header. When this setting is `true`, CloudFront adds the `X-Content-Type-Options: nosniff` header to response. (Blocks a request if the request destination is of type style and the MIME type is not text/css, or of type script and the MIME type is not a JavaScript MIME type.) Defaults to `false`.<br/>    (Optional) `override` - Whether CloudFront overrides the `X-Content-Type-Options` response header with the header received from the origin. Defaults to `true`. | <pre>object({<br/>    enabled  = optional(bool, false)<br/>    override = optional(bool, true)<br/>  })</pre> | `{}` | no |
@@ -48,7 +48,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the CloudFront response headers policy. |
 | <a name="output_cors"></a> [cors](#output\_cors) | A configuration for a set of HTTP response headers for CORS(Cross-Origin Resource Sharing). |
 | <a name="output_custom_headers"></a> [custom\_headers](#output\_custom\_headers) | A configuration for custom headers in the response headers. |
