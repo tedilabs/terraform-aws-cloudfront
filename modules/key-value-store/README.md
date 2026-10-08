@@ -13,6 +13,7 @@ This module creates following resources.
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.37 |
+| <a name="requirement_telemetry"></a> [telemetry](#requirement\_telemetry) | >= 0.1.1 |
 
 ## Providers
 
@@ -40,6 +41,7 @@ No modules.
 | <a name="input_description"></a> [description](#input\_description) | (Optional) The description of the CloudFront Key-Value Store. | `string` | `"Managed by Terraform."` | no |
 | <a name="input_exclusive"></a> [exclusive](#input\_exclusive) | (Optional) Whether to manage all keys exclusively. If `true`, all keys not defined in the `keys` variable will be removed from the key-value store. If `false`, keys are managed individually and can coexist with keys managed outside of Terraform. Defaults to `false`. | `bool` | `false` | no |
 | <a name="input_items"></a> [items](#input\_items) | (Optional) A map of key-value pairs to store in the CloudFront Key-Value Store. The key is the key name and the value is the value to store. Defaults to `{}`. | `map(string)` | `{}` | no |
+| <a name="input_telemetry"></a> [telemetry](#input\_telemetry) | (Optional) A configuration to collect telemetry data for the module. This is used to improve the module and its features. The data collected is anonymous and does not contain any sensitive information. The default configuration enables telemetry collection for machine, network, git, github, github actions, terraform, and toolchain. You can disable telemetry collection by setting `enabled` to `false`. `telemetry` block as defined below.<br/>    (Optional) `enabled` - Whether to enable telemetry collection. Default is `true`.<br/>    (Optional) `capture_machine` - Whether to capture machine information. Default is `true`.<br/>    (Optional) `capture_network` - Whether to capture network information. Default is `true`.<br/>    (Optional) `capture_git` - Whether to capture git information. Default is `true`.<br/>    (Optional) `capture_github` - Whether to capture GitHub information. Default is `true`.<br/>    (Optional) `capture_github_actions` - Whether to capture GitHub Actions information. Default is `true`.<br/>    (Optional) `capture_terraform` - Whether to capture Terraform information. Default is `true`.<br/>    (Optional) `capture_toolchain` - Whether to capture toolchain information. Default is `true`. | <pre>object({<br/>    enabled = optional(bool, true)<br/><br/>    capture_machine        = optional(bool, true)<br/>    capture_network        = optional(bool, true)<br/>    capture_git            = optional(bool, true)<br/>    capture_github         = optional(bool, true)<br/>    capture_github_actions = optional(bool, true)<br/>    capture_terraform      = optional(bool, true)<br/>    capture_toolchain      = optional(bool, true)<br/>  })</pre> | `{}` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | (Optional) How long to wait for the CloudFront Key-Value Store to be created. | <pre>object({<br/>    create = optional(string, "30m")<br/>  })</pre> | `{}` | no |
 
 ## Outputs
