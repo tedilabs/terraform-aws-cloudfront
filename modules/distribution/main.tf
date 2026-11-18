@@ -305,12 +305,9 @@ resource "aws_cloudfront_distribution" "this" {
     compress         = var.default_behavior.compression_enabled
     smooth_streaming = var.default_behavior.smooth_streaming_enabled
 
-    trusted_key_groups = var.default_behavior.trusted_key_groups
-    field_level_encryption_id = (var.default_behavior.viewer_protocol_policy == "HTTPS_ONLY" && contains(var.default_behavior.allowed_http_methods, "POST") && contains(var.default_behavior.allowed_http_methods, "PUT")
-      ? var.default_behavior.field_level_encryption_configuration
-      : null
-    )
-    realtime_log_config_arn = var.default_behavior.realtime_log_configuration
+    trusted_key_groups        = var.default_behavior.trusted_key_groups
+    field_level_encryption_id = var.default_behavior.field_level_encryption_configuration
+    realtime_log_config_arn   = var.default_behavior.realtime_log_configuration
 
     # Viewer
     viewer_protocol_policy = local.viewer_protocol_policy[var.default_behavior.viewer_protocol_policy]
@@ -418,12 +415,9 @@ resource "aws_cloudfront_distribution" "this" {
       compress         = behavior.value.compression_enabled
       smooth_streaming = behavior.value.smooth_streaming_enabled
 
-      trusted_key_groups = behavior.value.trusted_key_groups
-      field_level_encryption_id = (behavior.value.viewer_protocol_policy == "HTTPS_ONLY" && contains(behavior.value.allowed_http_methods, "POST") && contains(behavior.value.allowed_http_methods, "PUT")
-        ? behavior.value.field_level_encryption_configuration
-        : null
-      )
-      realtime_log_config_arn = behavior.value.realtime_log_configuration
+      trusted_key_groups        = behavior.value.trusted_key_groups
+      field_level_encryption_id = behavior.value.field_level_encryption_configuration
+      realtime_log_config_arn   = behavior.value.realtime_log_configuration
 
       # Viewer
       viewer_protocol_policy = local.viewer_protocol_policy[behavior.value.viewer_protocol_policy]
