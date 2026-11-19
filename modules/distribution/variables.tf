@@ -473,7 +473,7 @@ variable "default_behavior" {
     (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
     (Optional) `smooth_streaming_enabled` - Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`.
     (Optional) `trusted_key_groups` - A set of key group IDs that CloudFront can use to validate signed URLs or signed cookies.
-    (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, the distribution must be configured to always use HTTPS, and to accept HTTP POST and PUT requests from viewers.
+    (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, `viewer_protocol_policy` must be `HTTPS_ONLY` or `REDIRECT_TO_HTTPS`, and `allowed_http_methods` must include `POST` and `PUT`.
     (Optional) `realtime_log_configuration` -The ARN of real-time log configuration for the default behavior. Real-time logs are delivered to the data stream in Amazon Kinesis Data Streams.
     (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
     (Optional) `allowed_http_methods` - A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` , `["GET", "HEAD", "OPTIONS"]`, or `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`. Defaults to `["GET", "HEAD"]`.
@@ -579,6 +579,17 @@ variable "default_behavior" {
 
   validation {
     condition = anytrue([
+      var.default_behavior.field_level_encryption_configuration == null,
+      (contains(["HTTPS_ONLY", "REDIRECT_TO_HTTPS"], var.default_behavior.viewer_protocol_policy)
+        && contains(var.default_behavior.allowed_http_methods, "POST")
+        && contains(var.default_behavior.allowed_http_methods, "PUT")
+      )
+    ])
+    error_message = "To use `field_level_encryption_configuration`, `viewer_protocol_policy` must be `HTTPS_ONLY` or `REDIRECT_TO_HTTPS`, and `allowed_http_methods` must include `POST` and `PUT`."
+  }
+
+  validation {
+    condition = anytrue([
       !var.default_behavior.grpc_enabled,
       (var.default_behavior.grpc_enabled
         && contains(var.default_behavior.allowed_http_methods, "POST")
@@ -628,7 +639,7 @@ variable "ordered_behaviors" {
     (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
     (Optional) `smooth_streaming_enabled` - Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`.
     (Optional) `trusted_key_groups` - A set of key group IDs that CloudFront can use to validate signed URLs or signed cookies.
-    (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, the distribution must be configured to always use HTTPS, and to accept HTTP POST and PUT requests from viewers.
+    (Optional) `field_level_encryption_configuration` - The ID of field-level encryption configuration. To associate a field-level encryption configuration with a cache behavior, `viewer_protocol_policy` must be `HTTPS_ONLY` or `REDIRECT_TO_HTTPS`, and `allowed_http_methods` must include `POST` and `PUT`.
     (Optional) `realtime_log_configuration` -The ARN of real-time log configuration for the behavior. Real-time logs are delivered to the data stream in Amazon Kinesis Data Streams.
     (Optional) `viewer_protocol_policy` - The protocol policy that viewers can use to access the contents in CloudFront edge locations. Valid values are `ALLOW_ALL`, `HTTPS_ONLY`, and `REDIRECT_TO_HTTPS`. Defaults to `REDIRECT_TO_HTTPS`.
     (Optional) `allowed_http_methods` - A list of HTTP methods to allow. Controls which HTTP methods CloudFront processes and forwards to your Amazon S3 bucket or your custom origin. Valid values are `["GET", "HEAD"]` , `["GET", "HEAD", "OPTIONS"]`, or `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`. Defaults to `["GET", "HEAD"]`.
@@ -741,6 +752,20 @@ variable "ordered_behaviors" {
     error_message = <<EOF
     Valid values for `cached_http_methods` are `["GET", "HEAD"]` or `["GET", "HEAD", "OPTIONS"]`.
     EOF
+  }
+
+  validation {
+    condition = alltrue([
+      for behavior in var.ordered_behaviors :
+      anytrue([
+        behavior.field_level_encryption_configuration == null,
+        (contains(["HTTPS_ONLY", "REDIRECT_TO_HTTPS"], behavior.viewer_protocol_policy)
+          && contains(behavior.allowed_http_methods, "POST")
+          && contains(behavior.allowed_http_methods, "PUT")
+        )
+      ])
+    ])
+    error_message = "To use `field_level_encryption_configuration`, `viewer_protocol_policy` must be `HTTPS_ONLY` or `REDIRECT_TO_HTTPS`, and `allowed_http_methods` must include `POST` and `PUT`."
   }
 
   validation {
