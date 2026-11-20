@@ -377,7 +377,7 @@ resource "aws_cloudfront_distribution" "this" {
 
       content {
         cookies {
-          forward           = lower(config.forwarding_cookies.behavior)
+          forward           = lower(config.value.forwarding_cookies.behavior)
           whitelisted_names = config.value.forwarding_cookies.items
         }
 
@@ -487,7 +487,7 @@ resource "aws_cloudfront_distribution" "this" {
 
         content {
           cookies {
-            forward           = lower(config.forwarding_cookies.behavior)
+            forward           = lower(config.value.forwarding_cookies.behavior)
             whitelisted_names = config.value.forwarding_cookies.items
           }
 
