@@ -530,7 +530,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   lifecycle {
     precondition {
-      condition     = (length(keys(var.s3_origins)) > 0) || (length(keys(var.custom_origins)) > 0)
+      condition     = (length(keys(var.s3_origins)) > 0) || (length(keys(var.custom_origins)) > 0) || (length(keys(var.vpc_origins)) > 0)
       error_message = "One or more origin should be defined."
     }
   }
