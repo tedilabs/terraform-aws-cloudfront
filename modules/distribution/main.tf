@@ -469,15 +469,15 @@ resource "aws_cloudfront_distribution" "this" {
 
       # Cache Key & Origin Requests (Legacy)
       min_ttl = (behavior.value.legacy_cache_config.enabled
-        ? behavior.legacy_cache_config.min_ttl
+        ? behavior.value.legacy_cache_config.min_ttl
         : null
       )
       default_ttl = (behavior.value.legacy_cache_config.enabled
-        ? behavior.legacy_cache_config.default_ttl
+        ? behavior.value.legacy_cache_config.default_ttl
         : null
       )
       max_ttl = (behavior.value.legacy_cache_config.enabled
-        ? behavior.legacy_cache_config.max_ttl
+        ? behavior.value.legacy_cache_config.max_ttl
         : null
       )
 
