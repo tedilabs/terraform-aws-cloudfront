@@ -39,14 +39,8 @@ resource "aws_cloudfront_vpc_origin" "this" {
     arn  = var.endpoint
 
     origin_protocol_policy = local.protocol_policy[var.protocol_policy]
-    http_port = (contains(["HTTP_ONLY", "MATCH_VIEWER"], var.protocol_policy)
-      ? var.http_port
-      : null
-    )
-    https_port = (contains(["HTTPS_ONLY", "MATCH_VIEWER"], var.protocol_policy)
-      ? var.https_port
-      : null
-    )
+    http_port              = var.http_port
+    https_port             = var.https_port
 
     origin_ssl_protocols {
       items    = local.ssl_security_policy[var.ssl_security_policy]
