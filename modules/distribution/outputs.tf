@@ -123,11 +123,13 @@ output "geographic_restriction" {
   }
 }
 
-# TODO: update description
 output "ssl" {
   description = <<EOF
   The SSL/TLS configuration for the distribution.
     `certificate_provider` - The provider of SSL certificate for the distribution.
+    `certificate` - The ARN of the ACM certificate or the ID of the IAM certificate for the distribution. `null` if `certificate_provider` is `CLOUDFRONT`.
+    `security_policy` - The security policy (minimum TLS protocol version) for viewer connections.
+    `support_method` - The method how CloudFront serves HTTPS requests.
   EOF
   value = {
     certificate_provider = var.ssl_certificate_provider

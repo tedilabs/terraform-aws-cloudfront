@@ -12,7 +12,7 @@ variable "description" {
 }
 
 variable "exclusive" {
-  description = "(Optional) Whether to manage all keys exclusively. If `true`, all keys not defined in the `keys` variable will be removed from the key-value store. If `false`, keys are managed individually and can coexist with keys managed outside of Terraform. Defaults to `false`."
+  description = "(Optional) Whether to manage all keys exclusively. If `true`, all keys not defined in the `items` variable will be removed from the key-value store. If `false`, keys are managed individually and can coexist with keys managed outside of Terraform. Defaults to `false`."
   type        = bool
   default     = false
   nullable    = false
