@@ -381,9 +381,9 @@ resource "aws_cloudfront_distribution" "this" {
           whitelisted_names = config.value.forwarding_cookies.items
         }
 
-        headers = (config.value.forwarding_query_strings.behavior == "ALL"
+        headers = (config.value.forwarding_headers.behavior == "ALL"
           ? ["*"]
-          : config.value.forwarding_query_strings.items
+          : config.value.forwarding_headers.items
         )
 
         query_string = contains(["ALL", "WHITELIST"], config.value.forwarding_query_strings.behavior)
@@ -491,9 +491,9 @@ resource "aws_cloudfront_distribution" "this" {
             whitelisted_names = config.value.forwarding_cookies.items
           }
 
-          headers = (config.value.forwarding_query_strings.behavior == "ALL"
+          headers = (config.value.forwarding_headers.behavior == "ALL"
             ? ["*"]
-            : config.value.forwarding_query_strings.items
+            : config.value.forwarding_headers.items
           )
 
           query_string = contains(["ALL", "WHITELIST"], config.value.forwarding_query_strings.behavior)
