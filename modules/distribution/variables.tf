@@ -127,8 +127,8 @@ variable "error_responses" {
 variable "geographic_restriction" {
   description = <<EOF
   (Optional) A configuration for CloudFront geographic restrictions. `geographic_restriction` as defined below.
-    (Optiona) `type` - The method that you want to use to restrict distribution of the content by country. Valid values are `NONE`, `WHITELIST` or `BLACKLIST`. Defaults to `NONE`.
-    (Optiona) `countries` - A list of the ISO 3166-1-alpha-2 codes for which you want CloudFront either to distribute your content (`WHITELIST`) or not distribute your content (`BLACKLIST`).
+    (Optional) `type` - The method that you want to use to restrict distribution of the content by country. Valid values are `NONE`, `WHITELIST` or `BLACKLIST`. Defaults to `NONE`.
+    (Optional) `countries` - A list of the ISO 3166-1-alpha-2 codes for which you want CloudFront either to distribute your content (`WHITELIST`) or not distribute your content (`BLACKLIST`).
   EOF
   type = object({
     type      = optional(string, "NONE")
@@ -188,8 +188,8 @@ variable "ssl_support_method" {
   description = <<EOF
   (Optional) The method how you want CloudFront to serve HTTPS requests. Valid values are `VIP`, `SNI_ONLY`, `STATIC_IP`. Can only be set if `ssl_certificate_provider` is not `CLOUDFRONT`. Defaults to `SNI_ONLY`.
     `SNI_ONLY` - The distribution accepts HTTPS connections from only viewers that support SNI(Server Name Indication). This is recommended.
-    `VIP` - The distribution accepts HTTPS connections from all viewers including those that dont support SNI. This is not recommended, and results in additional monthly charges from CloudFront.
-    `STATIC_IP` - Do not specify this value unless your distribution has been enabled for this feature by the CloudFront team. If you have a usecase that requires static IP addresses for a distribution, contact CloudFront through the AWS Support Center.
+    `VIP` - The distribution accepts HTTPS connections from all viewers including those that don't support SNI. This is not recommended, and results in additional monthly charges from CloudFront.
+    `STATIC_IP` - Do not specify this value unless your distribution has been enabled for this feature by the CloudFront team. If you have a use case that requires static IP addresses for a distribution, contact CloudFront through the AWS Support Center.
   EOF
   type        = string
   default     = "SNI_ONLY"
@@ -468,7 +468,7 @@ variable "origin_groups" {
 
 variable "default_behavior" {
   description = <<EOF
-  (Required) A default bahavior for the distribution. `default_behavior` as defined below.
+  (Required) A default behavior for the distribution. `default_behavior` as defined below.
     (Required) `target_origin` - The ID of existing origin or origin group that you want CloudFront to route requests to when a request matches the path pattern for the default behavior.
     (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
     (Optional) `smooth_streaming_enabled` - Whether to distribute media files in Microsoft Smooth Streaming format and you do not have an IIS server. Set `false` if your origin is configured to use Microsoft IIS for Smooth Streaming. Defaults to `false`.
@@ -483,7 +483,7 @@ variable "default_behavior" {
     (Optional) `origin_request_policy` - The ID of the origin request policy that you want to attach to the default behavior of the distribution.
     (Optional) `response_headers_policy` - The ID of the response headers policy that you want to attach to the default behavior of the distribution.
     (Optional) `legacy_cache_config` - The legacy cache configuration for the default behavior of the distribution. Recommend using a cache policy and origin request policy to control the cache key and origin requests. `legacy_cache_config` block as defined below.
-      (Opitonal) `enabled` - Whether to enable legacy cache configuration. Defaults to `false`.
+      (Optional) `enabled` - Whether to enable legacy cache configuration. Defaults to `false`.
       (Optional) `min_ttl` - The minimum amount of time that you want objects to stay in CloudFront caches before CloudFront queries your origin to see whether the object has been updated. Defaults to `0`.
       (Optional) `default_ttl` - The default amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request in the absence of an `Cache-Control max-age` or `Expires` header. Defaults to `86400`.
       (Optional) `max_ttl` - The maximum amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request to your origin to determine whether the object has been updated. Only effective in the presence of `Cache-Control max-age`, `Cache-Control s-maxage`, and `Expires` headers. Defaults to `31536000`.
@@ -633,7 +633,7 @@ variable "default_behavior" {
 
 variable "ordered_behaviors" {
   description = <<EOF
-  (Optional) An ordered list of ordered bahaviors for the distribution. Each block of `ordered_behaviors` as defined below.
+  (Optional) An ordered list of ordered behaviors for the distribution. Each block of `ordered_behaviors` as defined below.
     (Required) `path_patterns` - A list of patterns that specifies which requests you want this cache behavior to apply to. When CloudFront receives an end-user request, the requested path is compared with path patterns in the order in which cache behaviors are listed in the distribution. The first match determines which cache behavior is applied to that request. Path patterns support wildcard matching: `*` and `?`. Path patterns are case-sensitive, and support the following characters: a-z, A-Z, 0-9, `_-.*$/~"'@:+'"`, & (as `&amp;`).
     (Required) `target_origin` - The ID of existing origin or origin group that you want CloudFront to route requests to when a request matches the path pattern for the behavior.
     (Optional) `compression_enabled` - Whether you want CloudFront to automatically compress content for web requests that include `Accept-Encoding: gzip` in the request header. Defaults to `true`.
@@ -649,7 +649,7 @@ variable "ordered_behaviors" {
     (Optional) `origin_request_policy` - The ID of the origin request policy that you want to attach to the behavior of the distribution.
     (Optional) `response_headers_policy` - The ID of the response headers policy that you want to attach to the behavior of the distribution.
     (Optional) `legacy_cache_config` - The legacy cache configuration for the behavior of the distribution. Recommend using a cache policy and origin request policy to control the cache key and origin requests. `legacy_cache_config` block as defined below.
-      (Opitonal) `enabled` - Whether to enable legacy cache configuration. Defaults to `false`.
+      (Optional) `enabled` - Whether to enable legacy cache configuration. Defaults to `false`.
       (Optional) `min_ttl` - The minimum amount of time that you want objects to stay in CloudFront caches before CloudFront queries your origin to see whether the object has been updated. Defaults to `0`.
       (Optional) `default_ttl` - The default amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request in the absence of an `Cache-Control max-age` or `Expires` header. Defaults to `86400`.
       (Optional) `max_ttl` - The maximum amount of time (in seconds) that an object is in a CloudFront cache before CloudFront forwards another request to your origin to determine whether the object has been updated. Only effective in the presence of `Cache-Control max-age`, `Cache-Control s-maxage`, and `Expires` headers. Defaults to `31536000`.
