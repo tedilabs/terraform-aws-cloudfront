@@ -1,11 +1,11 @@
 variable "name" {
-  description = "(Required) A unique name to identify the CloudFront Origin Request Policy."
+  description = "(Required) A unique name to identify the CloudFront Response Headers Policy."
   type        = string
   nullable    = false
 }
 
 variable "description" {
-  description = "(Optional) The description of the origin request policy."
+  description = "(Optional) The description of the response headers policy."
   type        = string
   default     = "Managed by Terraform."
   nullable    = false
