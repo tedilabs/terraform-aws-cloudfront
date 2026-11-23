@@ -71,7 +71,7 @@ variable "ipv6_enabled" {
 }
 
 variable "anycast_static_ip_list" {
-  description = "(Optional) The ID of anycast static IP address list to associate with the distribution. You must request to AWS Support to use this feature. Only one of `anycast_static_ip_list`."
+  description = "(Optional) The ID of anycast static IP address list to associate with the distribution. You must request to AWS Support to use this feature."
   type        = string
   default     = null
   nullable    = true
@@ -566,7 +566,7 @@ variable "default_behavior" {
   validation {
     condition     = contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"]), toset(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"])], var.default_behavior.allowed_http_methods)
     error_message = <<EOF
-    Valid values for `allowed_http_methods` are `["GET", "HEAD"]`, `["GET", "HEAD", "OPTIONS"]`, `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"`.
+    Valid values for `allowed_http_methods` are `["GET", "HEAD"]`, `["GET", "HEAD", "OPTIONS"]`, `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`.
     EOF
   }
 
@@ -740,7 +740,7 @@ variable "ordered_behaviors" {
       contains([toset(["GET", "HEAD"]), toset(["GET", "HEAD", "OPTIONS"]), toset(["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"])], behavior.allowed_http_methods)
     ])
     error_message = <<EOF
-    Valid values for `allowed_http_methods` are `["GET", "HEAD"]`, `["GET", "HEAD", "OPTIONS"]`, `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"`.
+    Valid values for `allowed_http_methods` are `["GET", "HEAD"]`, `["GET", "HEAD", "OPTIONS"]`, `["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]`.
     EOF
   }
 
@@ -872,7 +872,7 @@ variable "tags" {
 }
 
 variable "module_tags_enabled" {
-  description = "(Optional) Whether to create AWS Resource Tags for the module informations."
+  description = "(Optional) Whether to create AWS Resource Tags for the module information."
   type        = bool
   default     = true
   nullable    = false

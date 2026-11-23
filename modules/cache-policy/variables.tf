@@ -12,21 +12,21 @@ variable "description" {
 }
 
 variable "default_ttl" {
-  description = "(Optional) The default time to live in seconds. The amount of time is that you want objects to stay in the CloudFront cache before another request to the origin to see if the object has been updated. Defaults to `86400` (one day)."
+  description = "(Optional) The default time to live in seconds. The amount of time that you want objects to stay in the CloudFront cache before another request to the origin to see if the object has been updated. Defaults to `86400` (one day)."
   type        = number
   default     = 86400
   nullable    = false
 }
 
 variable "min_ttl" {
-  description = "(Optional) The minimum time to live in seconds. The amount of time is that you want objects to stay in the CloudFront cache before another request to the origin to see if the object has been updated. Defaults to `1`."
+  description = "(Optional) The minimum time to live in seconds. The amount of time that you want objects to stay in the CloudFront cache before another request to the origin to see if the object has been updated. Defaults to `1`."
   type        = number
   default     = 1
   nullable    = false
 }
 
 variable "max_ttl" {
-  description = "(Optional) The maximum time to live in seconds. The amount of time is that you want objects to stay in the CloudFront cache before another request to the origin to see if the object has been updated. Defaults to `31536000` (one year)."
+  description = "(Optional) The maximum time to live in seconds. The amount of time that you want objects to stay in the CloudFront cache before another request to the origin to see if the object has been updated. Defaults to `31536000` (one year)."
   type        = number
   default     = 31536000
   nullable    = false

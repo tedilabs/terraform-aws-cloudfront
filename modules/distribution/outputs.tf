@@ -261,7 +261,7 @@ output "ordered_behaviors" {
 output "logging" {
   description = <<EOF
   The logging configuration for the distribution.
-    `s3` - The configuration to delivery access logs to S3 for the distribution.
+    `s3` - The configuration to deliver access logs to S3 for the distribution.
   EOF
   value = {
     s3 = {
