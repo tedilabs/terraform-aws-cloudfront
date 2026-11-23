@@ -26,7 +26,7 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
   - Connection Function
   - Function
   - Key-value Store
-  - Real-time Log Configuration (Comming soon!)
+  - Real-time Log Configuration (Coming soon!)
   - Origins
     - Custom Origin
     - S3 Origin
@@ -36,7 +36,7 @@ Terraform Modules from [this package](https://github.com/tedilabs/terraform-aws-
   - Policies
     - Cache Policy
     - Origin Request Policy
-    - Resposne Headers Policy
+    - Response Headers Policy
 
 
 ## Examples
