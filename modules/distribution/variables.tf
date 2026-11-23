@@ -629,6 +629,11 @@ variable "default_behavior" {
     condition     = contains(["NONE", "WHITELIST", "ALL"], var.default_behavior.legacy_cache_config.forwarding_query_strings.behavior)
     error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
   }
+
+  validation {
+    condition     = var.default_behavior.cache_policy != null || var.default_behavior.legacy_cache_config.enabled
+    error_message = "Either `cache_policy` must be set or `legacy_cache_config.enabled` must be `true`."
+  }
 }
 
 variable "ordered_behaviors" {
@@ -826,6 +831,14 @@ variable "ordered_behaviors" {
       contains(["NONE", "WHITELIST", "ALL"], behavior.legacy_cache_config.forwarding_query_strings.behavior)
     ])
     error_message = "Valid values for `behavior` are `NONE`, `WHITELIST` and `ALL`."
+  }
+
+  validation {
+    condition = alltrue([
+      for behavior in var.ordered_behaviors :
+      behavior.cache_policy != null || behavior.legacy_cache_config.enabled
+    ])
+    error_message = "Either `cache_policy` must be set or `legacy_cache_config.enabled` must be `true` for each of `ordered_behaviors`."
   }
 }
 
