@@ -62,7 +62,7 @@ variable "custom_headers" {
   description = <<EOF
   (Optional) A configuration for specifying the custom HTTP headers in HTTP responses sent from CloudFront. Each item of `custom_headers` as defined below.
     (Required) `name` - The HTTP response header name.
-    (Optional) `value` - The value for the HTTP response header. If a header value is not provided, CloudFront adds the empty header (with no value) to the response.
+    (Required) `value` - The value for the HTTP response header.
     (Optional) `override` - Whether CloudFront overrides a response header with the same name received from the origin with the header specifies here.
   EOF
   type = list(object({

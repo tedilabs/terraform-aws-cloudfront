@@ -504,7 +504,7 @@ variable "default_behavior" {
     - `ORIGIN_RESPONSE`: When CloudFront receives a response from the origin.
     - `VIEWER_RESPONSE`: Before CloudFront returns the response to the viewer.
 
-    Each value of `default_function_associtaions` as defined below.
+    Each value of `function_associations` as defined below.
       (Required) `type` - The type of associated function. Valid values are `LAMBDA_EDGE` and `CLOUDFRONT`.
       (Required) `function` - The ARN of the CloudFront function or the Lambda@Edge function.
       (Optional) `include_body` - Whether to expose the request body to the Lambda@Edge function. Only valid when `type` is `LAMBDA_EDGE` on `VIEWER_REQUEST` and `ORIGIN_REQUEST` events. Defaults to `false`.
@@ -662,7 +662,7 @@ variable "ordered_behaviors" {
       (Optional) `forwarding_query_strings` - A configuration for specifying which query strings in viewer requests to be forwarded in the origin requests. `forwarding_query_strings` as defined below.
         (Required) `behavior` - Determine whether any query strings in viewer requests are forwarded in the origin requests. Valid values are `NONE`, `WHITELIST`, `ALL`. Defaults to `NONE`.
         (Optional) `items` - A list of query string names. It only takes effect when `behavior` is `WHITELIST`.
-    (Optional) `function_associations` - The configuration for function associations to event of the CloudFront distribution. You can configure a Lambda@Edge function or CloudFront function. Each key means the CloudFront event. Supported CloudFront events are `VIEWER_REQUEST`, `ORIGIN_REQUEST`, `ORIGIN_RESPONSE`, and `VIEWER_RESPONSE`. Each value of `default_function_associtaions` as defined below.
+    (Optional) `function_associations` - The configuration for function associations to event of the CloudFront distribution. You can configure a Lambda@Edge function or CloudFront function. Each key means the CloudFront event. Supported CloudFront events are `VIEWER_REQUEST`, `ORIGIN_REQUEST`, `ORIGIN_RESPONSE`, and `VIEWER_RESPONSE`. Each value of `function_associations` as defined below.
       (Required) `type` - The type of associated function. Valid values are `LAMBDA_EDGE` and `CLOUDFRONT`.
       (Required) `function` - The ARN of the CloudFront function or the Lambda@Edge function.
       (Optional) `include_body` - Whether to expose the request body to the Lambda@Edge function. Only valid when `type` is `LAMBDA_EDGE` on `VIEWER_REQUEST` and `ORIGIN_REQUEST` events. Defaults to `false`.
